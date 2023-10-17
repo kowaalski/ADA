@@ -94,6 +94,52 @@ public class Analyzer implements Runnable {
 
     }
 
+    // max -> 10 s -> 10.000 ms
+    public static ArrayList<Double> sacarTiempos(Algorithm algorithm) {
+		
+		int n=1,cont=0;
+		ArrayList<Double> tiempos = new ArrayList<Double>();
+		Chronometer t = new Chronometer();
+		
+		while(cont<17 && (double) t.getElapsedTime()< 117 ) {  // CUIDADO AHORA ESTAMOS EN MS ADAPTAR DESDE NS
+        //Pongo (0,1117 s -> 117,64 ms) ya que si no falla nada entre el for y el while se ejecutaria 85 veces el algoritmo
+        //10/85 sale a 0,1117 s , es decir cada vuelta a este bucle tiene que durar como máximo 0,11s ya que si fuera más y se ejecutara las 85 veces pasaríamos el tiempo MAX de ejecucion por algoritmo			
+            algorithm.init(n);
+            t.start();
+			algorithm.run();
+			t.stop();
+			tiempos.add((double) t.getElapsedTime());
+			//System.out.println(t.getElapsedTime()+" --> "+n);
+			
+			n=n*2;
+			cont++;
+		}
+
+        return tiempos;
+    }
+		
+		
+
+    // Tabla 3 y 4
+    public static double[] sacarMedia(Algorithm algorithm) {
+		
+		double[] tmedia = new double[17];
+		for(int i=0; i<5; i++) {
+			ArrayList<Double> tiempos = sacarTiempos(algorithm);
+			// System.out.println(tiempos.toString());
+			for (int x = 0; x < tiempos.size(); x++) {	  
+				  tmedia[x]=tmedia[x]+tiempos.get(x);	  
+			}
+		}
+		
+		for(int i=0;i<tmedia.length;i++) {
+			tmedia[i]=tmedia[i]/5;
+		}
+		// System.out.println(Arrays.toString(tmedia));
+		
+		return tmedia;
+	}
+
     static String findComplexityOf(Algorithm algorithm, long maxExecutionTime) {
         // Modify the content of this method in order to find the complexity of the given algorithm.
         // You can delete any of the following instructions if you don't need them. You can also
@@ -103,8 +149,10 @@ public class Analyzer implements Runnable {
         //Ir midiendo tiempos variando la n, y formamos una tabla, vemos la ultima n más grande y la que mas se acerque
         //a una CTE es esa la complejidad, si una fila es 0 pues la complejidad es del anterior
 
-        Map<String, List<Double>> complexity_times=getTimes(algorithm);
-        System.out.println(complexity_times.toString());
+        // Map<String, List<Double>> complexity_times=getTimes(algorithm);
+        double[] tmedia = sacarMedia(algorithm);
+        System.out.println(Arrays.toString(tmedia));
+        // System.out.println(complexity_times.toString());
 
         return "----THIS IS A TEST----";
     }
