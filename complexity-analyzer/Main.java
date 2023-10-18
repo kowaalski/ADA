@@ -18,8 +18,8 @@ public class Main {
 
         Chronometer chronometer = new Chronometer();
         int ok = 0;
-        for (String className : new String[]{"Cubic"}) { // uncomment this line and comment the next one to test a single algorithm
-        // for (String className : getAlgorithmsClasses()) {
+        // for (String className : new String[]{"BruteForceKnapsack"}) { // uncomment this line and comment the next one to test a single algorithm
+        for (String className : getAlgorithmsClasses()) {
             try {
                 if(Algorithm.class.isAssignableFrom(Class.forName("algorithms." + className))) {
                     Thread t;

@@ -143,11 +143,13 @@ public class Analyzer implements Runnable {
 		int max=0;
 		String compl="";
 		for(Map.Entry<String,Integer> entry : Complejidades.entrySet()){ 
-			if (entry.getValue() >max) {
+			if (entry.getValue() >=max) {
 				max=entry.getValue();
 				compl=entry.getKey();
 			}
 		}
+
+        System.out.println(Complejidades);
 		
 		return compl;
 	
@@ -157,6 +159,7 @@ public class Analyzer implements Runnable {
     public static ArrayList<Double> sacarTiempos(Algorithm algorithm) {
 		
 		int n=1,cont=0;
+        // int sumaTiempos=0;
         // int[] array_n = {2, 5, 13, 38, 125, 412, 1368, 4553, 15162, 27671, 50512, 92172};
         
 		ArrayList<Double> tiempos = new ArrayList<Double>();
@@ -172,12 +175,34 @@ public class Analyzer implements Runnable {
 			algorithm.run();
 			t.stop();
 			tiempos.add((double) t.getElapsedTime());
+            // if(t.getElapsedTime()==0.0 && cont!=0){ // to bruteForceKnapsack va mal pensar como hacerlo
+                // System.out.println("----DENTRO");
+                // n=n*2+16;
+            // }else{
+                n=n*2;
+            // }
 			//System.out.println(t.getElapsedTime()+" --> "+n);
+			// sumaTiempos+=sumaTiempos;
 			
-			n=n*2;
 			cont++;
 		}
-        // como max la `n` llega a 131.072
+
+        // Si tarda demasiado poco es que es una complejidad muy baja, por lo que para estudiarla bien y diferenciarla de las demas
+        // debemos hacerlo con 'n' mayores, los nuevos tiempos los machacamos a los anteriores usando set
+        // cont=0;
+        // if(sumaTiempos<500){
+        //     while(cont<17 && (double) t.getElapsedTime()< 117 ) {  
+        //         algorithm.init(n);
+        //         t.start();
+        //         algorithm.run();
+        //         t.stop();
+        //         tiempos.set(cont, (double) t.getElapsedTime());
+        //         //System.out.println(t.getElapsedTime()+" --> "+n);
+        //         n=n*2;
+        //         cont++;
+		// }
+        // }
+        // // como max la `n` llega a 131.072
         // System.out.println(n);
 
         return tiempos;
@@ -205,7 +230,7 @@ public class Analyzer implements Runnable {
 	}
 
     public static ArrayList<Double> sacarRatios(double[]tmedia) {
-		
+		int contCeros=0;
 		ArrayList<Double> ratios = new ArrayList<Double>();
 		
 		for(int i=0;i<tmedia.length-1;i++) {
@@ -215,7 +240,27 @@ public class Analyzer implements Runnable {
             }
 		}
 		
+        contCeros=comprobarCeros(ratios);
+
+        // Si hay mas de 8 ceros es decir más de la mitad de los ratios son 0 es que el orden es constante
+        if(contCeros>14){
+            throw new RuntimeException("Es de orden constante");
+        }
+
+
 		return ratios;
+	}
+
+    public static int comprobarCeros(ArrayList<Double> ratios) {
+		int contCeros=0;
+		
+		for(int i=0;i<ratios.size();i++) {
+           if(ratios.get(i)==0.0){
+            contCeros++;
+           }
+		}
+        
+        return contCeros;
 	}
 	
 
@@ -231,23 +276,26 @@ public class Analyzer implements Runnable {
         // Map<String, List<Double>> complexity_times=getTimes(algorithm);
         String complejidad;
         Chronometer t = new Chronometer();
-        algorithm.init(25);
+        algorithm.init(13);
         t.start();
 		algorithm.run();
 		t.stop();
 
-        if(t.getElapsedTime() > 50){
+        if(t.getElapsedTime() > 5000){
+            // System.out.println(t.getElapsedTime());
             complejidad="2^n";
         }else{
             double[] tmedia = sacarMedia(algorithm);
-            ArrayList<Double> ratios = sacarRatios(tmedia);
-            complejidad = masCercano(ratios);
-            // System.out.println(Arrays.toString(tmedia));
-            // System.out.println("La complejidad es: "+ complejidad);
-            // System.out.println(complexity_times.toString());
+            try {
+                ArrayList<Double> ratios = sacarRatios(tmedia);
+                complejidad = masCercano(ratios);    
+            
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+                complejidad="1";
+            }
         }
  
-
         return complejidad;
     }
 }

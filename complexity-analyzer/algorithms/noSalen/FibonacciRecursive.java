@@ -1,4 +1,4 @@
-package algorithms;
+package algorithms.noSalen;
 
 import analyzer.Algorithm;
 
