@@ -156,17 +156,18 @@ public class Analyzer implements Runnable {
 	}
 
     // max -> 10 s -> 10.000 ms
-    public static ArrayList<Double> sacarTiempos(Algorithm algorithm) {
+    public static ArrayList<Long> sacarTiempos(Algorithm algorithm) {
 		
 		int n=1,cont=0;
         // int sumaTiempos=0;
-        // int[] array_n = {2, 5, 13, 38, 125, 412, 1368, 4553, 15162, 27671, 50512, 92172};
+        // int[] array_n = {2, 5, 13, 38, 125, 412, 1368, 4553, 15162, 27671, 50512, 92172, 200000000};
         
-		ArrayList<Double> tiempos = new ArrayList<Double>();
+		ArrayList<Long> tiempos = new ArrayList<Long>();
 		Chronometer t = new Chronometer();
 		//12
         //166
-		while(cont<17 && (double) t.getElapsedTime()< 117 ) {  // CUIDADO AHORA ESTAMOS EN MS ADAPTAR DESDE NS
+        //cont<17
+		while(cont<17 && t.getElapsedTime()< 117 ) {  // CUIDADO AHORA ESTAMOS EN MS ADAPTAR DESDE NS
         //Pongo (0,1117 s -> 117,64 ms) ya que si no falla nada entre el for y el while se ejecutaria 85 veces el algoritmo
         //10/85 sale a 0,1117 s , es decir cada vuelta a este bucle tiene que durar como máximo 0,11s ya que si fuera más y se ejecutara las 85 veces pasaríamos el tiempo MAX de ejecucion por algoritmo			
             // n=array_n[cont];
@@ -174,12 +175,13 @@ public class Analyzer implements Runnable {
             t.start();
 			algorithm.run();
 			t.stop();
-			tiempos.add((double) t.getElapsedTime());
+			tiempos.add( t.getElapsedTime());
             // if(t.getElapsedTime()==0.0 && cont!=0){ // to bruteForceKnapsack va mal pensar como hacerlo
                 // System.out.println("----DENTRO");
                 // n=n*2+16;
             // }else{
                 n=n*2;
+                // n=array_n[cont];
             // }
 			//System.out.println(t.getElapsedTime()+" --> "+n);
 			// sumaTiempos+=sumaTiempos;
@@ -205,6 +207,8 @@ public class Analyzer implements Runnable {
         // // como max la `n` llega a 131.072
         // System.out.println(n);
 
+        // System.out.println(tiempos.toString());
+
         return tiempos;
     }
 		
@@ -214,7 +218,7 @@ public class Analyzer implements Runnable {
 		
 		double[] tmedia = new double[17];
 		for(int i=0; i<5; i++) {
-			ArrayList<Double> tiempos = sacarTiempos(algorithm);
+			ArrayList<Long> tiempos = sacarTiempos(algorithm);
 			// System.out.println(tiempos.toString());
 			for (int x = 0; x < tiempos.size(); x++) {	  
 				  tmedia[x]=tmedia[x]+tiempos.get(x);	  
