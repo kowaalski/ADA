@@ -98,25 +98,42 @@ public class Analyzer implements Runnable {
 
 
     public static String masCercano(double ratio) {
-        if (ratio < 1) {
-            // System.out.println("+1 pto --> 1");                      // aprox 1.0
+
+        /// RATIOS PABLO /////
+        if (ratio < 1.0) {
             return "1";							
-        }else if (1 <= ratio && ratio <= 1.4){ //LOGN esta entre 1 y N, por lo que he ido probando valores entre ese rango hasta que he dado con la clave
-            // System.out.println("+1 pto --> log(n)");
+        }else if (1.0 <= ratio && ratio <= 1.4){
             return "log(n)";
-        }else if (1.25 <= ratio && ratio < 2.05) { // aprox 2.0
-            // System.out.println("+1 pto --> n");
+        }else if (1.4 < ratio && ratio < 2.05) {
             return "n";
-        } else if(1.4 <= ratio && ratio < 3.0){
-            // System.out.println("+1 pto --> n*log(n)");
+        } else if(2.05 <= ratio && ratio < 3.0){
             return "n*log(n)";
-        }else if (3 <= ratio && ratio < 6.0) { // aprox 4.0
-            // System.out.println("+1 pto --> n^2");
+        }else if (3 <= ratio && ratio < 6.0) {
             return "n^2";
-        } else { // aprox 8.0
-            // System.out.println("+1 pto --> n^3");
+        } else {
             return "n^3";
         } 
+
+        //// RATIOS DIEGO //////
+        // if (ratio < 1) {
+        //     // System.out.println("+1 pto --> 1");                      // aprox 1.0
+        //     return "1";							
+        // }else if (1 <= ratio && ratio <= 1.4){ //LOGN esta entre 1 y N, por lo que he ido probando valores entre ese rango hasta que he dado con la clave
+        //     // System.out.println("+1 pto --> log(n)");
+        //     return "log(n)";
+        // }else if (1.25 <= ratio && ratio < 2.05) { // aprox 2.0
+        //     // System.out.println("+1 pto --> n");
+        //     return "n";
+        // } else if(1.4 <= ratio && ratio < 3.0){
+        //     // System.out.println("+1 pto --> n*log(n)");
+        //     return "n*log(n)";
+        // }else if (3 <= ratio && ratio < 6.0) { // aprox 4.0
+        //     // System.out.println("+1 pto --> n^2");
+        //     return "n^2";
+        // } else { // aprox 8.0
+        //     // System.out.println("+1 pto --> n^3");
+        //     return "n^3";
+        // } 
     }
 
     public static String masCercano(ArrayList<Double> ratios) {
@@ -130,7 +147,7 @@ public class Analyzer implements Runnable {
 		Complejidades.put("n*log(n)", 0);
 		// Complejidades.put("NF", 0);
 		// System.out.println(ratios.toString());
-		for(int i=0;i<ratios.size();i++) {
+		for(int i=0; i<ratios.size(); i++) {
 			//System.out.println(ratio);
             if(ratios.get(i)!=0.0){
                 String orden = masCercano(ratios.get(i));
@@ -149,7 +166,7 @@ public class Analyzer implements Runnable {
 			}
 		}
 
-        System.out.println(Complejidades);
+        // System.out.println(Complejidades);
 		
 		return compl;
 	
@@ -228,7 +245,7 @@ public class Analyzer implements Runnable {
 		for(int i=0;i<tmedia.length;i++) {
 			tmedia[i]=tmedia[i]/5;
 		}
-		System.out.println(Arrays.toString(tmedia));
+		// System.out.println(Arrays.toString(tmedia));
 		
 		return tmedia;
 	}
@@ -246,7 +263,7 @@ public class Analyzer implements Runnable {
 		
         contCeros=comprobarCeros(ratios);
 
-        // Si hay mas de 8 ceros es decir más de la mitad de los ratios son 0 es que el orden es constante
+        // Si hay mas de 14 ceros es decir más de la mitad de los ratios son 0 es que el orden es constante
         if(contCeros>14){
             throw new RuntimeException("Es de orden constante");
         }
@@ -269,24 +286,15 @@ public class Analyzer implements Runnable {
 	
 
     static String findComplexityOf(Algorithm algorithm, long maxExecutionTime) {
-        // Modify the content of this method in order to find the complexity of the given algorithm.
-        // You can delete any of the following instructions if you don't need them. You can also
-        // add new instructions or new methods, but you cannot modify the signature of this method
-        // nor the existing methods.
-
-        //Ir midiendo tiempos variando la n, y formamos una tabla, vemos la ultima n más grande y la que mas se acerque
-        //a una CTE es esa la complejidad, si una fila es 0 pues la complejidad es del anterior
-
         // Map<String, List<Double>> complexity_times=getTimes(algorithm);
         String complejidad;
         Chronometer t = new Chronometer();
-        algorithm.init(13);
+        algorithm.init(13);  // Este valor ha sido obtenido a tanteo, para que el tiempo de ejecución sea alrededor de 10 segundos para los algoritmos de complejidad 2^n 
         t.start();
 		algorithm.run();
 		t.stop();
-
-        if(t.getElapsedTime() > 5000){
-            // System.out.println(t.getElapsedTime());
+                                // 5000
+        if(t.getElapsedTime() > maxExecutionTime/2){
             complejidad="2^n";
         }else{
             double[] tmedia = sacarMedia(algorithm);
@@ -295,7 +303,7 @@ public class Analyzer implements Runnable {
                 complejidad = masCercano(ratios);    
             
             } catch (RuntimeException e) {
-                System.out.println(e.getMessage());
+                // System.out.println(e.getMessage());
                 complejidad="1";
             }
         }
