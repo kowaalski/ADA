@@ -57,7 +57,6 @@ las celdas debería ser el de NoSort
 
 */
 
-
 public class Main {
     public static void main(String[] args) {
         // initialize game and map
@@ -206,10 +205,6 @@ public class Main {
         return bestNoSort;
     }
 
-
-
-
-    
     private static ArrayList<MapNode> selectBestNodesQuickSort(ArrayList<MapNode> nodesListCopy, int count) {
         // En java los arrays son los unicos tipos que se pasan por referencia,
         // por tanto si la funcion modifica el array, el array original tambien es
@@ -221,36 +216,6 @@ public class Main {
             best.add(nodesListCopy.get(i));
         }
         return best;
-    }
-
-    private static void quickSort(ArrayList<MapNode> nodesList, int low, int high) {
-        if (low < high) {
-            int pi = pivot(nodesList, low, high);
-
-            quickSort(nodesList, low, pi - 1);
-            quickSort(nodesList, pi + 1, high);
-        }
-    }
-
-    private static int pivot(ArrayList<MapNode> nodesList, int low, int high) {
-        MapNode pivot = nodesList.get(high);
-        int i = (low - 1);
-
-        for (int j = low; j < high; j++) {
-            if (nodesList.get(j).getValue(0) < pivot.getValue(0)) {
-                i++;
-
-                MapNode temp = nodesList.get(i);
-                nodesList.set(i, nodesList.get(j));
-                nodesList.set(j, temp);
-            }
-        }
-
-        MapNode temp = nodesList.get(i + 1);
-        nodesList.set(i + 1, nodesList.get(high));
-        nodesList.set(high, temp);
-
-        return i + 1;
     }
 
     private static ArrayList<MapNode> selectBestNodesMergeSort(ArrayList<MapNode> nodesListCopy, int count) {
@@ -265,24 +230,102 @@ public class Main {
 
     }
 
+    /*
+     * #----------------------------------------------------------------------------
+     * # QUICKSORT
+     * #----------------------------------------------------------------------------
+     * 
+     * Implementacion basada en
+     * https://www.youtube.com/watch?v=UrPJLhKF1jY&ab_channel=ChioCode
+     * 
+     */
+    private static void quickSort(ArrayList<MapNode> nodesList, int low, int high) {
+        if (low < high) { // vendría siendo mientras el num de elementos del array sea mayor de 1
+            int pi = pivot(nodesList, low, high); // en realidad donde se realiza la ordenacion es en este metodo
+
+            quickSort(nodesList, low, pi - 1);
+            quickSort(nodesList, pi + 1, high);
+        }
+    }
+
+    /*
+     * Para reorganizar los elementos del ArrayList de manera que los elementos más
+     * pequeños que el pivote se coloquen a la izquierda del pivote y
+     * los elementos más grandes a la derecha.
+     */
+    private static int pivot(ArrayList<MapNode> nodesList, int low, int high) {
+        MapNode pivot = nodesList.get(high); // Pone el pivote en la ultima pos del array
+        int i = (low - 1); // Pone el puntero i fuera del array por la izq
+        /*
+         * El algoritmo tiene que recorrer todos los elem del array
+         * 
+         * SI el elemento < pivote, tenemos que cambiarlo
+         * por el siguiente elemento que apunta el puntero i, y avanzamos el puntero i
+         * 
+         * SI el elemento > pivote no hacemos nada
+         * 
+         * Al salir del bucle tenemos que cambiar el pivote por el siguiente elemento
+         * que apunta el puntero i
+         * 
+         * Asi se quedaría a la izquierda del pivote todos los elementos menores que el
+         * y a la derecha mayores que el
+         * Devolvemos la pos nueva del pivote
+         */
+        for (int j = low; j < high; j++) {
+            if (nodesList.get(j).getValue(0) < pivot.getValue(0)) { // Condicion '>' --> Ordenaría de mayor a menor
+                i++;
+
+                // intercambia elemento de la pos i por j
+                MapNode temp = nodesList.get(i);
+                nodesList.set(i, nodesList.get(j));
+                nodesList.set(j, temp);
+            }
+        }
+
+        MapNode temp = nodesList.get(i + 1);
+        nodesList.set(i + 1, nodesList.get(high));
+        nodesList.set(high, temp);
+
+        return i + 1; // la nueva pos del pivote
+    }
+
+    /*
+     * #----------------------------------------------------------------------------
+     * # MERGESORT
+     * #----------------------------------------------------------------------------
+     * 
+     * 
+     */
+
     private static ArrayList<MapNode> mergeSort(ArrayList<MapNode> nodesListCopy, int i, int j) {
         if (i < j) {
             int mid = (i + j) / 2;
             ArrayList<MapNode> left = mergeSort(nodesListCopy, i, mid);
             ArrayList<MapNode> right = mergeSort(nodesListCopy, mid + 1, j);
             return merge(left, right);
-        } else {
+        } else { // lo mismo que longitud del array 1, caso base, devolvemos un array con ese
+                 // mismo elemento
             ArrayList<MapNode> base = new ArrayList<>();
             base.add(nodesListCopy.get(i));
             return base;
         }
     }
 
+    // Fusiono los dos arrays
     private static ArrayList<MapNode> merge(ArrayList<MapNode> left, ArrayList<MapNode> right) {
         ArrayList<MapNode> result = new ArrayList<>();
         int i = 0, j = 0;
+        /*
+         * Hay que tener en cuento que los dos arrays left y right estan ordenados.
+         * Se van recorriendo las posiciones de los array y se van comparando si es
+         * menor una que otra
+         * si es así se avanza el respectivo indice que toca, si metemos en el array
+         * resultante una posicion
+         * de uno de los array pues habra que incrementar el indice del correspondiente
+         * array para indicar que ya lo hemos metido esa posicion
+         */
         while (i < left.size() && j < right.size()) {
-            if (left.get(i).getValue(0) <= right.get(j).getValue(0)) {
+            if (left.get(i).getValue(0) <= right.get(j).getValue(0)) { // Condicion '>=' --> Ordenaría de mayor a menor
                 result.add(left.get(i));
                 i++;
             } else {
@@ -290,6 +333,15 @@ public class Main {
                 j++;
             }
         }
+
+        /*
+         * Tener en cuenta que aun así pueden quedar posiciones finales de los array que
+         * no se han insertado
+         * ya que el bucle a lo mejor ha terminado porque el tamaño por ejemplo de i ya
+         * ha superado el del array left, por tanto
+         * habrá que meter juntar tal cual al array resul los valores de right, y asi
+         * podría pasar al contrario si j supera el tamaño de right antes que i el suyo.
+         */
         while (i < left.size()) {
             result.add(left.get(i));
             i++;
