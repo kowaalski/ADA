@@ -1,5 +1,3 @@
-# Analizador de complejidades
+# ADA
 
-Este programa lo que se encarga es de deducir la complejidad de un algoritmo pasado por parámetros.
-
-Forma parte de la primera Práctica de la asignatura Análisis y Diseños de Algoritmos, de Ingenieria Informática en Málaga.
+Aquí estarán todas las prácticas de la Asignatura `Ánalisis y Diseños de Algoritmos` de Ingeniería Informática de la Universidad de Málaga.
