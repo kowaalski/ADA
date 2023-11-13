@@ -294,7 +294,6 @@ public class Main {
      * # MERGESORT
      * #----------------------------------------------------------------------------
      * 
-     * 
      */
 
     private static ArrayList<MapNode> mergeSort(ArrayList<MapNode> nodesListCopy, int i, int j) {
@@ -353,10 +352,23 @@ public class Main {
         return result;
     }
 
+    /*
+     * #----------------------------------------------------------------------------
+     * # INSERTION SORT
+     * #----------------------------------------------------------------------------
+     * 
+     */
+
+     /* Coge cada elemento del array (x) y recorre a la izquierda de el comprobando cada elemento de su izq
+     si el elemento de su izquierda < no hace nada
+     si el elemento de su izquierda > intercambia su posicion
+      */ 
+
     private static ArrayList<MapNode> selectBestNodesInsertionSort(ArrayList<MapNode> nodesList, int count) {
         for (int i = 1; i < nodesList.size(); i++) {
             int j = i - 1;
-            MapNode x = nodesList.get(i);
+            MapNode x = nodesList.get(i); // Selecciona el elemento en la posición i
+                                          // Mueve los elementos mayores que x una posición hacia adelante
             while (j >= 0 && nodesList.get(j).getValue(0) > x.getValue(0)) {
                 nodesList.set(j + 1, nodesList.get(j));
                 j--;
@@ -371,6 +383,13 @@ public class Main {
 
         return best;
     }
+
+    /*
+     * #----------------------------------------------------------------------------
+     * # BRUTE FORCE SORT
+     * #----------------------------------------------------------------------------
+     * 
+     */
 
     private static ArrayList<MapNode> selectBestNodesNoSort(ArrayList<MapNode> nodesList, int count) {
         ArrayList<MapNode> bestNodes = new ArrayList<>();
