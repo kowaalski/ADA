@@ -1,6 +1,8 @@
 package net.agsh.towerdefense.strats;
 
+import net.agsh.towerdefense.MapNode;
 import net.agsh.towerdefense.Tower;
+import java.util.Random;
 
 import java.util.ArrayList;
 
@@ -60,7 +62,8 @@ public class TowerBuyer {
 
     }
 
-    // Asigna a todas las towers un score (peso) y devuelve una lista que contiene una tupla <Tower,Score>
+    // Asigna a todas las towers un score (peso) y devuelve una lista que contiene
+    // una tupla <Tower,Score>
     public static ArrayList<Tuple> getAllTowersValues(ArrayList<Tower> towers) {
         ArrayList<Tuple> listTowersScores = new ArrayList<>();
 
@@ -75,24 +78,20 @@ public class TowerBuyer {
         return listTowersScores;
     }
 
-    /*** ENTRY POINT  ***/
+    /*** ENTRY POINT ***/
     public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float money) {
 
-        // System.out.println(" /////////////// Score: " +
-        // getTowerValue(towers.get(0)));
         ArrayList<Tuple> listTowers = getAllTowersValues(towers);
+        listTowers = mergeSort(listTowers, 0, listTowers.size() - 1);
 
-        System.out.println(listTowers);
+        // System.out.println(listTowers);
 
-        ArrayList<Integer> selected = new ArrayList<>();
-        for (int i = 0; i < towers.size(); i++) {
-            if (money >= towers.get(i).getCost()) {
-                money -= towers.get(i).getCost();
-                selected.add(i);
-            }
-        }
+        makeTable(listTowers, (int) money);
+        
+        
+        // getIndexFromID(solution,towers)
 
-        return selected;
+        return null;
     }
 
     /*
@@ -118,14 +117,142 @@ public class TowerBuyer {
      * 
      */
 
-    // public static ArrayList<Integer> initTable(ArrayList<Tower> towers, float
-    // money) {
+    public static ArrayList<Integer> makeTable(ArrayList<Tuple> listTowers, int money) {
 
-    // // Cada torreta es una fila
-    // // Valores discretos desde 0 hasta el total de money
-    // int files = towers.size();
-    // int[][] table = new int[files][money];
+        // Cada torreta es una fila
+        // Valores discretos desde 0 hasta el total de money
+        int files = listTowers.size();
+        int columns = money;
+        int[][] table = initTable(files, columns);
 
-    // return selected;
-    // }
+        ArrayList<Integer> listCapacities = fillCapacity(money);
+
+        // listCapacities -> P
+        // listTowers -> V
+
+        // SEGUIR TRANSPARENCIAS TAL CUAL
+        for (int i = 0; i < files; i++) {
+            for (int j = 0; j < columns; j++) {
+
+            }
+        }
+
+        return null;
+    }
+
+    // Creo una matriz a modo de tabla y la inicializo con todo a 0 en todas las
+    // filas en su primer columna
+    public static int[][] initTable(int files, int columns) {
+        int[][] table = new int[files][columns];
+
+        for (int i = 0; i < files; i++) {
+            table[i][0] = 0;
+        }
+
+        return table;
+    }
+
+    // Función para imprimir una matriz
+    public static void printMatrix(int[][] matrix) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println(); // Salto de línea al final de cada fila
+        }
+    }
+
+    // Para rellenar un array desde 0,1,2,3...Money --> Asi tendría un array con las
+    // "capacidades"
+    public static ArrayList<Integer> fillCapacity(int money) {
+        ArrayList<Integer> listCapacities = new ArrayList<>();
+        for (int i = 0; i < money; i++) {
+            listCapacities.add(i);
+
+        }
+
+        return listCapacities;
+    }
+
+    // Este método una vez obtenida la tabla rellena, reconstruye la solución, es
+    // decir te devuelve la lista de torretas (indices) que se deben seleccionar
+    // Tener en cuenta que al ordenar la lista de torretas, hemos perdido la
+    // referencia de los indices de las torretas que seleccionemos
+    // al reconstruir la solución, por lo que guardaremos el ID de la torreta
+    // solucionada en el array solution, y despues
+    //
+    public static ArrayList<Integer> reconstructSolution(int[][] solvedTable) {
+        ArrayList<Integer> solution = new ArrayList<>();
+        // TO DO
+
+       
+        return null;
+    }
+
+    // Asocia el ID de las torretas seleccionadas con su respectivo indice en la
+    // lista original de torretas sin ordenar ni hacer tuplas
+    public static ArrayList<Integer> getIndexFromID(ArrayList<Integer> solutionIndex, ArrayList<Tower> listOriginalTowers) {
+        ArrayList<Integer> FinalSolution = new ArrayList<>();
+        // TO DO
+
+        return null;
+    }
+
+    // Ordeno por coste de la torreta
+    private static ArrayList<Tuple> mergeSort(ArrayList<Tuple> listTowers, int i, int j) {
+        if (i < j) {
+            int mid = (i + j) / 2;
+            ArrayList<Tuple> left = mergeSort(listTowers, i, mid);
+            ArrayList<Tuple> right = mergeSort(listTowers, mid + 1, j);
+            return merge(left, right);
+        } else { // lo mismo que longitud del array 1, caso base, devolvemos un array con ese
+                 // mismo elemento
+            ArrayList<Tuple> base = new ArrayList<>();
+            base.add(listTowers.get(i));
+            return base;
+        }
+    }
+
+    // Fusiono los dos arrays
+    private static ArrayList<Tuple> merge(ArrayList<Tuple> left, ArrayList<Tuple> right) {
+        ArrayList<Tuple> result = new ArrayList<>();
+        int i = 0, j = 0;
+        /*
+         * Hay que tener en cuento que los dos arrays left y right estan ordenados.
+         * Se van recorriendo las posiciones de los array y se van comparando si es
+         * menor una que otra
+         * si es así se avanza el respectivo indice que toca, si metemos en el array
+         * resultante una posicion
+         * de uno de los array pues habra que incrementar el indice del correspondiente
+         * array para indicar que ya lo hemos metido esa posicion
+         */
+        while (i < left.size() && j < right.size()) {
+            if (left.get(i).first.getCost() <= right.get(j).first.getCost()) { // Condicion '>=' --> Ordenaría de mayor
+                                                                               // a menor
+                result.add(left.get(i));
+                i++;
+            } else {
+                result.add(right.get(j));
+                j++;
+            }
+        }
+
+        /*
+         * Tener en cuenta que aun así pueden quedar posiciones finales de los array que
+         * no se han insertado
+         * ya que el bucle a lo mejor ha terminado porque el tamaño por ejemplo de i ya
+         * ha superado el del array left, por tanto
+         * habrá que meter juntar tal cual al array resul los valores de right, y asi
+         * podría pasar al contrario si j supera el tamaño de right antes que i el suyo.
+         */
+        while (i < left.size()) {
+            result.add(left.get(i));
+            i++;
+        }
+        while (j < right.size()) {
+            result.add(right.get(j));
+            j++;
+        }
+        return result;
+    }
 }
