@@ -12,19 +12,21 @@ public class TowerBuyer {
     // su score (sería el peso en la mochila)
     public static class Tuple {
         private final Tower first;
-        private final float second;
+        private final int second;
 
         public Tuple(Tower first, float second) {
             this.first = first;
-            this.second = second;
+            this.second = (int) second;
         }
 
+        // Tower
         public Tower getFirst() {
             return first;
         }
 
-        public float getSecond() {
-            return second;
+        // Score == Valor
+        public int getSecond() {
+            return (int) second;
         }
 
         public String toString() {
@@ -87,8 +89,7 @@ public class TowerBuyer {
         // System.out.println(listTowers);
 
         makeTable(listTowers, (int) money);
-        
-        
+
         // getIndexFromID(solution,towers)
 
         return null;
@@ -127,15 +128,43 @@ public class TowerBuyer {
 
         ArrayList<Integer> listCapacities = fillCapacity(money);
 
-        // listCapacities -> P
-        // listTowers -> V
+        // listCapacities -> j
+        // listTowers -> V,P
+        // table -> f
 
-        // SEGUIR TRANSPARENCIAS TAL CUAL
-        for (int i = 0; i < files; i++) {
-            for (int j = 0; j < columns; j++) {
+        /*******************************************/
+        /********* ALGORITMO DE LA MOCHILA *********/
+        /*******************************************/
+        // La primera fila se hace sola, ya que no depende de ninguna
+        for (int j = 0; j < columns; j++) {
+            int cost = (int) listTowers.get(1).first.getCost();
+            int value = (int) listTowers.get(1).getSecond();
 
+            if (j < cost) {
+                table[1][j] = 0;
+            } else {
+                table[1][j] = value;
             }
         }
+
+        for (int i = 1; i < files; i++) {
+            for (int j = 0; j < columns; j++) {
+                int cost = (int) listTowers.get(i).first.getCost();
+                int value = (int) listTowers.get(i).getSecond();
+
+                if (j < cost) {
+                    table[i][j] = table[i - 1][j];
+                } else {
+                    int aux = j - cost;
+                    table[i][j] = Math.max(table[i - 1][j], table[i - 1][aux] + value);
+                }
+            }
+        }
+
+        // printMatrix(table);
+        ArrayList<Tower> solution = reconstructSolution(table, listTowers, listCapacities);
+        System.out.println(solution.toString());
+        System.out.println("//////////////////////////////////");
 
         return null;
     }
@@ -175,23 +204,56 @@ public class TowerBuyer {
     }
 
     // Este método una vez obtenida la tabla rellena, reconstruye la solución, es
-    // decir te devuelve la lista de torretas (indices) que se deben seleccionar
+    // decir te devuelve la lista de torretas que se deben seleccionar.
     // Tener en cuenta que al ordenar la lista de torretas, hemos perdido la
     // referencia de los indices de las torretas que seleccionemos
-    // al reconstruir la solución, por lo que guardaremos el ID de la torreta
-    // solucionada en el array solution, y despues
+    // al reconstruir la solución, por lo que guardaremos la torreta entera
+    // solucionada en el array solution
     //
-    public static ArrayList<Integer> reconstructSolution(int[][] solvedTable) {
-        ArrayList<Integer> solution = new ArrayList<>();
-        // TO DO
+    public static ArrayList<Tower> reconstructSolution(int[][] solvedTable, ArrayList<Tuple> listTowers,
+            ArrayList<Integer> listCapacities) {
+        ArrayList<Tower> solution = new ArrayList<>();
+        int lastFile = solvedTable.length - 1;
+        int lastColumn = solvedTable[0].length - 1;
 
-       
-        return null;
+        Tower lastTower = listTowers.get(listTowers.size() - 1).getFirst();
+        int lastCapacity = (int) listCapacities.get(listCapacities.size() - 1);
+        boolean seguir = true;
+        while (seguir) {
+            int last = solvedTable[lastFile][lastColumn];
+            // System.out.println("LAST:" +last);
+            // System.out.println("LAST FILA ANTERIOR:" +solvedTable[lastFile -
+            // 1][lastColumn]);
+
+            if (last != solvedTable[lastFile - 1][lastColumn]) {
+                // System.out.println("dentro");
+                solution.add(lastTower);
+                lastColumn = lastCapacity - (int) lastTower.getCost();
+                lastCapacity = listCapacities.get(lastColumn);
+            }
+
+            lastFile = lastFile - 1;
+            lastTower = listTowers.get(lastFile).getFirst();
+            last = solvedTable[lastFile][lastColumn];
+
+            if (lastFile == 0 && solvedTable[lastFile][lastColumn] != 0) { // CASO FINAL LLEGA A LA PRIMERA FILA Y
+                                                                           // TERMINA
+                // System.out.println("Dentro final-1");
+                solution.add(lastTower);
+                seguir = false;
+            } else if (lastFile == 0 && solvedTable[0][lastColumn] == 0) {
+                // System.out.println("Dentro final-2");
+                seguir = false;
+            }
+        }
+        return solution;
+
     }
 
     // Asocia el ID de las torretas seleccionadas con su respectivo indice en la
     // lista original de torretas sin ordenar ni hacer tuplas
-    public static ArrayList<Integer> getIndexFromID(ArrayList<Integer> solutionIndex, ArrayList<Tower> listOriginalTowers) {
+    public static ArrayList<Integer> getIndexFromID(ArrayList<Integer> solutionIndex,
+            ArrayList<Tower> listOriginalTowers) {
         ArrayList<Integer> FinalSolution = new ArrayList<>();
         // TO DO
 
