@@ -1,8 +1,6 @@
 package net.agsh.towerdefense.strats;
 
-import net.agsh.towerdefense.MapNode;
 import net.agsh.towerdefense.Tower;
-import java.util.Random;
 
 import java.util.ArrayList;
 
@@ -16,7 +14,7 @@ public class TowerBuyer {
 
         public Tuple(Tower first, float second) {
             this.first = first;
-            this.second = (int) second;
+            this.second = (int) Math.floor(second);
         }
 
         // Tower
@@ -26,11 +24,11 @@ public class TowerBuyer {
 
         // Score == Valor
         public int getSecond() {
-            return (int) second;
+            return second;
         }
 
         public String toString() {
-            return "Tuple{Tower=" + first + ", Score=" + second + '}';
+            return "Tuple{TowerID=" + first.getId() + ", Score=" + second + ", CostMoney= " + first.getCost() + " }";
         }
 
     }
@@ -80,22 +78,52 @@ public class TowerBuyer {
         return listTowersScores;
     }
 
-
-    /**** BUG SE GASTA MAS DINERO DE EL QUE TENEMOS, ESO ES POR TRUNCAR REVISARLO ****/
-    /*** ENTRY POINT ***/
+    /****
+     * BUG SE GASTA MAS DINERO DE EL QUE TENEMOS, ESO ES POR TRUNCAR REVISARLO ****
+     * Posible solucion: Truncar hacia abajo , y truncar el coste de towers que nos
+     * pasan hacia abajo/
+     * /*** ENTRY POINT
+     ***/
     public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float money) {
         // System.out.println(towers.toString());
+        // Redondea quita la parte decimal
+        System.out.println();
+        System.out.println();
+        System.out.println("-- ORIGINAL TOWER LIST --");
+        for (int i = 0; i < towers.size(); i++) {
+            Tower tower = towers.get(i);
+            System.out.println("Tower ID: " + tower.getId() + ", CostMoney: " + (int) Math.floor(tower.getCost()));
+        }
+        System.out.println();
+
+        int moneyInt = (int) Math.floor(money);
 
         ArrayList<Tuple> listTowers = getAllTowersValues(towers);
         listTowers = mergeSort(listTowers, 0, listTowers.size() - 1);
 
-        // System.out.println(listTowers);
+        System.out.println("// TOWERS SELECTED //");
+        ArrayList<Tower> solution = makeTable(listTowers, moneyInt);
+        int totalMoneySpend = 0;
+        for (int i = 0; i < solution.size(); i++) {
+            Tower tower = solution.get(i);
+            totalMoneySpend = totalMoneySpend + (int) Math.floor(tower.getCost());
+            System.out.println(
+                    (i + 1) + ". Tower ID: " + tower.getId() + ", CostMoney: " + (int) Math.floor(tower.getCost()));
+        }
+        System.err.println("-MONEY AVALIABLE TO SPEND: " + moneyInt);
+        System.out.println("-TOTAL COST MONEY SPEND: " + totalMoneySpend);
 
-        ArrayList<Tower> solution = makeTable(listTowers, (int) money);
+        ArrayList<Integer> finalSolution = getIndexFromTower(solution, towers);
 
-        ArrayList<Integer> finalSolution= getIndexFromTower(solution,towers);
-        // System.out.println("////////////// " + finalSolution.toString());
+        System.out.println("/////// FINAL SOLUTION OF INDEX ");
+        int i = 1;
+        for (int num : finalSolution) {
+            System.out.println(i + ". Tower ID: " + towers.get(num).getId());
+            i++;
+        }
 
+        System.out.println(
+                "TAM SOLUTION TOWER: " + solution.size() + ", TAM SOLUTION FINAL INDEX: " + finalSolution.size());
         return finalSolution;
     }
 
@@ -141,8 +169,8 @@ public class TowerBuyer {
         /*******************************************/
         // La primera fila se hace sola, ya que no depende de ninguna
         for (int j = 0; j < columns; j++) {
-            int cost = (int) listTowers.get(1).first.getCost();
-            int value = (int) listTowers.get(1).getSecond();
+            int cost = (int) Math.floor(listTowers.get(1).first.getCost());
+            int value = listTowers.get(1).getSecond();
 
             if (j < cost) {
                 table[1][j] = 0;
@@ -153,8 +181,8 @@ public class TowerBuyer {
 
         for (int i = 1; i < files; i++) {
             for (int j = 0; j < columns; j++) {
-                int cost = (int) listTowers.get(i).first.getCost();
-                int value = (int) listTowers.get(i).getSecond();
+                int cost = (int) Math.floor(listTowers.get(i).first.getCost());
+                int value = listTowers.get(i).getSecond();
 
                 if (j < cost) {
                     table[i][j] = table[i - 1][j];
@@ -221,7 +249,7 @@ public class TowerBuyer {
         int lastColumn = solvedTable[0].length - 1;
 
         Tower lastTower = listTowers.get(listTowers.size() - 1).getFirst();
-        int lastCapacity = (int) listCapacities.get(listCapacities.size() - 1);
+        int lastCapacity = (int) Math.floor(listCapacities.get(listCapacities.size() - 1));
         boolean seguir = true;
         while (seguir) {
             int last = solvedTable[lastFile][lastColumn];
@@ -232,7 +260,7 @@ public class TowerBuyer {
             if (last != solvedTable[lastFile - 1][lastColumn]) {
                 // System.out.println("dentro");
                 solution.add(lastTower);
-                lastColumn = lastCapacity - (int) lastTower.getCost();
+                lastColumn = lastCapacity - (int) Math.floor(lastTower.getCost());
                 lastCapacity = listCapacities.get(lastColumn);
             }
 
@@ -256,21 +284,29 @@ public class TowerBuyer {
 
     // Asocia el ID de las torretas seleccionadas con su respectivo indice en la
     // lista original de torretas sin ordenar ni hacer tuplas
-    public static ArrayList<Integer> getIndexFromTower(ArrayList<Tower> solutionTower, ArrayList<Tower> listOriginalTowers) {
+    public static ArrayList<Integer> getIndexFromTower(ArrayList<Tower> solutionTower,
+            ArrayList<Tower> listOriginalTowers) {
+
         ArrayList<Integer> finalSolution = new ArrayList<>();
-        int index=0;
+        int i = 0;
+        int j = 0;
+        boolean seguir = true;
 
-        for (Tower towerSolution : solutionTower) {
-            index=0;
-            for (Tower towerOriginal : listOriginalTowers) {
-                if(towerSolution.getId()==towerOriginal.getId()){
-                    finalSolution.add(index);
-                    break;
+        while (i < solutionTower.size()) {
+            j = 0;
+            seguir = true;
+            Tower towerSolution = solutionTower.get(i);
+            while (j < listOriginalTowers.size() && seguir) {
+                Tower towerOriginal = listOriginalTowers.get(j);
+                if (towerSolution.getId() == towerOriginal.getId()) {
+                    finalSolution.add(j);
+                    seguir = false;
+                } else {
+                    j = j + 1;
                 }
-                index++;
-            }   
+            }
+            i = i + 1;
         }
-
         return finalSolution;
     }
 
