@@ -80,19 +80,23 @@ public class TowerBuyer {
         return listTowersScores;
     }
 
+
+    /**** BUG SE GASTA MAS DINERO DE EL QUE TENEMOS, ESO ES POR TRUNCAR REVISARLO ****/
     /*** ENTRY POINT ***/
     public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float money) {
+        // System.out.println(towers.toString());
 
         ArrayList<Tuple> listTowers = getAllTowersValues(towers);
         listTowers = mergeSort(listTowers, 0, listTowers.size() - 1);
 
         // System.out.println(listTowers);
 
-        makeTable(listTowers, (int) money);
+        ArrayList<Tower> solution = makeTable(listTowers, (int) money);
 
-        // getIndexFromID(solution,towers)
+        ArrayList<Integer> finalSolution= getIndexFromTower(solution,towers);
+        // System.out.println("////////////// " + finalSolution.toString());
 
-        return null;
+        return finalSolution;
     }
 
     /*
@@ -118,7 +122,7 @@ public class TowerBuyer {
      * 
      */
 
-    public static ArrayList<Integer> makeTable(ArrayList<Tuple> listTowers, int money) {
+    public static ArrayList<Tower> makeTable(ArrayList<Tuple> listTowers, int money) {
 
         // Cada torreta es una fila
         // Valores discretos desde 0 hasta el total de money
@@ -163,10 +167,10 @@ public class TowerBuyer {
 
         // printMatrix(table);
         ArrayList<Tower> solution = reconstructSolution(table, listTowers, listCapacities);
-        System.out.println(solution.toString());
-        System.out.println("//////////////////////////////////");
+        // System.out.println(solution.toString());
+        // System.out.println("//////////////////////////////////");
 
-        return null;
+        return solution;
     }
 
     // Creo una matriz a modo de tabla y la inicializo con todo a 0 en todas las
@@ -252,12 +256,22 @@ public class TowerBuyer {
 
     // Asocia el ID de las torretas seleccionadas con su respectivo indice en la
     // lista original de torretas sin ordenar ni hacer tuplas
-    public static ArrayList<Integer> getIndexFromID(ArrayList<Integer> solutionIndex,
-            ArrayList<Tower> listOriginalTowers) {
-        ArrayList<Integer> FinalSolution = new ArrayList<>();
-        // TO DO
+    public static ArrayList<Integer> getIndexFromTower(ArrayList<Tower> solutionTower, ArrayList<Tower> listOriginalTowers) {
+        ArrayList<Integer> finalSolution = new ArrayList<>();
+        int index=0;
 
-        return null;
+        for (Tower towerSolution : solutionTower) {
+            index=0;
+            for (Tower towerOriginal : listOriginalTowers) {
+                if(towerSolution.getId()==towerOriginal.getId()){
+                    finalSolution.add(index);
+                    break;
+                }
+                index++;
+            }   
+        }
+
+        return finalSolution;
     }
 
     // Ordeno por coste de la torreta
