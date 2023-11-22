@@ -14,7 +14,7 @@ public class TowerBuyer {
 
         public Tuple(Tower first, float second) {
             this.first = first;
-            this.second = (int) Math.floor(second);
+            this.second = (int) Math.ceil(second);
         }
 
         // Tower
@@ -79,9 +79,8 @@ public class TowerBuyer {
     }
 
     /****
-     * BUG SE GASTA MAS DINERO DE EL QUE TENEMOS, ESO ES POR TRUNCAR REVISARLO ****
-     * Posible solucion: Truncar hacia abajo , y truncar el coste de towers que nos
-     * pasan hacia abajo/
+     * BUG SE GASTA MAS DINERO DE EL QUE TENEMOS, ESO ES POR TRUNCAR REVISARLO, PERO ASI CONSEGUIMOS 90 DE SCORE ****
+     * runcar hacia ARRIBA
      * /*** ENTRY POINT
      ***/
     public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float money) {
@@ -92,11 +91,11 @@ public class TowerBuyer {
         System.out.println("-- ORIGINAL TOWER LIST --");
         for (int i = 0; i < towers.size(); i++) {
             Tower tower = towers.get(i);
-            System.out.println("Tower ID: " + tower.getId() + ", CostMoney: " + (int) Math.floor(tower.getCost()));
+            System.out.println("Tower ID: " + tower.getId() + ", CostMoney: " + (int) Math.ceil(tower.getCost()));
         }
         System.out.println();
 
-        int moneyInt = (int) Math.floor(money);
+        int moneyInt = (int) Math.ceil(money);
 
         ArrayList<Tuple> listTowers = getAllTowersValues(towers);
         listTowers = mergeSort(listTowers, 0, listTowers.size() - 1);
@@ -106,9 +105,9 @@ public class TowerBuyer {
         int totalMoneySpend = 0;
         for (int i = 0; i < solution.size(); i++) {
             Tower tower = solution.get(i);
-            totalMoneySpend = totalMoneySpend + (int) Math.floor(tower.getCost());
+            totalMoneySpend = totalMoneySpend + (int) Math.ceil(tower.getCost());
             System.out.println(
-                    (i + 1) + ". Tower ID: " + tower.getId() + ", CostMoney: " + (int) Math.floor(tower.getCost()));
+                    (i + 1) + ". Tower ID: " + tower.getId() + ", CostMoney: " + (int) Math.ceil(tower.getCost()));
         }
         System.err.println("-MONEY AVALIABLE TO SPEND: " + moneyInt);
         System.out.println("-TOTAL COST MONEY SPEND: " + totalMoneySpend);
@@ -169,7 +168,7 @@ public class TowerBuyer {
         /*******************************************/
         // La primera fila se hace sola, ya que no depende de ninguna
         for (int j = 0; j < columns; j++) {
-            int cost = (int) Math.floor(listTowers.get(1).first.getCost());
+            int cost = (int) Math.ceil(listTowers.get(1).first.getCost());
             int value = listTowers.get(1).getSecond();
 
             if (j < cost) {
@@ -181,7 +180,7 @@ public class TowerBuyer {
 
         for (int i = 1; i < files; i++) {
             for (int j = 0; j < columns; j++) {
-                int cost = (int) Math.floor(listTowers.get(i).first.getCost());
+                int cost = (int) Math.ceil(listTowers.get(i).first.getCost());
                 int value = listTowers.get(i).getSecond();
 
                 if (j < cost) {
@@ -249,7 +248,7 @@ public class TowerBuyer {
         int lastColumn = solvedTable[0].length - 1;
 
         Tower lastTower = listTowers.get(listTowers.size() - 1).getFirst();
-        int lastCapacity = (int) Math.floor(listCapacities.get(listCapacities.size() - 1));
+        int lastCapacity = (int) Math.ceil(listCapacities.get(listCapacities.size() - 1));
         boolean seguir = true;
         while (seguir) {
             int last = solvedTable[lastFile][lastColumn];
@@ -260,7 +259,7 @@ public class TowerBuyer {
             if (last != solvedTable[lastFile - 1][lastColumn]) {
                 // System.out.println("dentro");
                 solution.add(lastTower);
-                lastColumn = lastCapacity - (int) Math.floor(lastTower.getCost());
+                lastColumn = lastCapacity - (int) Math.ceil(lastTower.getCost());
                 lastCapacity = listCapacities.get(lastColumn);
             }
 
