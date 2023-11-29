@@ -17,7 +17,7 @@ public class TowerPlacer {
 
     public static void setValuesToNodes(Map map) {
         float maxRangeEnemy = Game.getInstance().getParam(Config.Parameter.TOWER_RANGE_MAX);
-        int value = 0;
+        float value = 0;
         ArrayList<MapNode> listWalkableNodes = map.getWalkableNodes();
         ArrayList<MapNode> listNodes = map.getNodesList();
 
@@ -62,6 +62,12 @@ public class TowerPlacer {
 
     }
 
+    public static boolean isInsideMatriz(Point2D position, Map map) {
+        return !(position.x < 0) && !(position.x > map.getSize().x) && !(position.y < 0)
+                && !(position.y > map.getSize().y);
+
+    }
+
     public static boolean collidesTowers(Point2D position, float radius, ArrayList<Tower> towers) {
         for (Tower t : towers) {
             if (!(position.distance(t.getPosition()) < radius + t.getRadius())) {
@@ -100,16 +106,16 @@ public class TowerPlacer {
             }
         }
         ArrayList<MapNode> candidates = map.getNodesList();
-        candidates.sort((o1, o2) -> Float.compare(o2.getValue(0), o1.getValue(0))); // Ordeno de mayor a menor
-        return map.getNodesList();
+        candidates.sort((o1, o2) -> Float.compare(o2.getValue(2), o1.getValue(2))); // Ordeno de mayor a menor
+        return candidates;
     }
 
-    public static boolean isFeasible(MapNode node, Map map, ArrayList<Tower> listTowers) {
+    public static boolean isFascible(MapNode node, Map map, ArrayList<Tower> listTowers) {
         int index = 0;
         for (int i = 0; i < listTowers.size(); i++) {
             Tower tower = listTowers.get(i);
             Point2D oldPosition = tower.getPosition();
-            tower.setPosition(node.getPosition());
+            tower.setPosition(node.getPosition().midPoint(oldPosition));
 
             if (!isInsideTable(tower.getPosition(), tower.getRadius(), map)) {
                 if (oldPosition != null) {
@@ -164,22 +170,98 @@ public class TowerPlacer {
         return false;
     }
 
+    public static boolean isFactible(MapNode celda, Tower tower, Map map, ArrayList<Tower> towersAlreadyPositioned) {
+
+        if (!isInsideTable(celda.getPosition(), tower.getRadius(), map)) {
+            System.out.println("No se puede colocar la torre porque se sale del mapa");
+            return false;
+        }
+
+        for (Tower tower2 : towersAlreadyPositioned) {
+            if (collide(celda.getPosition(), tower.getRadius(), tower2.getPosition(),
+                    tower2.getRadius())) {
+                System.out.println("No se puede colocar la torre porque colisiona con otratorre");
+                return false;
+            }
+        }
+
+        for (Obstacle obs : map.getObstacles()) {
+            if (collide(celda.getPosition(), tower.getRadius(), obs.getPosition(),
+                    obs.getRadius())) {
+                System.out.println("No se puede colocar la torre porque colisiona con un obstaculo");
+                return false;
+            }
+        }
+
+        if (collidesWalkablesNodes(celda.getPosition(), tower.getRadius(),
+                map.getWalkableNodes())) {
+            System.out.println("No se puede colocar la torre porque colisiona con un nodo transitable");
+            return false;
+        }
+
+        // if (!isInsideTable(celda.getPosition(), tower.getRadius(), map)) {
+
+        // // System.out.println("No se puede colocar la torre porque se sale del
+        // mapa");
+        // return false;
+        // }
+
+        // if (collidesObstacles(celda.getPosition(), tower.getRadius(),
+        // map.getObstacles())) {
+        // return false;
+        // }
+
+        // if (collidesTowers(celda.getPosition(), tower.getRadius(),
+        // towersAlreadyPositioned)) {
+        // return false;
+        // }
+
+        // if (collidesWalkablesNodes(celda.getPosition(),
+        // tower.getRadius() +
+        // Game.getInstance().getParam(Config.Parameter.ENEMY_RADIUS_MAX),
+        // map.getWalkableNodes())) {
+        // return false;
+        // }
+
+        return true;
+
+    }
+
     public static ArrayList<Tower> placeTowers(ArrayList<Tower> towers, Map map) {
         System.out.println("//////////////////////////////");
         setValuesToNodes(map);
 
+        boolean noPositioned = true;
         ArrayList<MapNode> candidates = getListCandidates(map);
         ArrayList<Tower> solution = new ArrayList<>();
 
-        while (towers.size() != 0 && !candidates.isEmpty()) {
-            MapNode c = candidates.get(0);
-            candidates.remove(0);
-
-            if (isFeasible(c, map, towers)) {
-                solution.add(towers.get(0));
-                towers.remove(0);
+        while (towers.size() != 0 && candidates.size() != 0) {
+            int i = 0;
+            Tower tower = towers.get(i);
+            towers.remove(i);
+            while (candidates.size() != 0 && noPositioned) {
+                int j = 0;
+                MapNode c = candidates.get(j);
+                candidates.remove(0);
+                if (isFactible(c, tower, map, solution)) {
+                    tower.setPosition(c.getPosition());
+                    solution.add(tower);
+                    noPositioned = false;
+                }
+                j++;
             }
+            i++;
+
         }
+        // while (towers.size() != 0 && !candidates.isEmpty()) {
+        // MapNode c = candidates.get(0);
+        // candidates.remove(0);
+
+        // if (isFeasible(c, map, towers)) {
+        // solution.add(towers.get(0));
+        // towers.remove(0);
+        // }
+        // }
 
         return solution;
     }
