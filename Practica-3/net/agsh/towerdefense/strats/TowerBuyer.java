@@ -57,7 +57,7 @@ public class TowerBuyer {
          */
 
         // float score = ((range * damage) / cooldown + dispersion) - cost / 100;
-        float score = ((range * damage) / cooldown) - cost/100;
+        float score = ((range * damage) / cooldown) - cost / 1000;
 
         return score;
 
