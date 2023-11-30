@@ -199,30 +199,6 @@ public class TowerPlacer {
             return false;
         }
 
-        // if (!isInsideTable(celda.getPosition(), tower.getRadius(), map)) {
-
-        // // System.out.println("No se puede colocar la torre porque se sale del
-        // mapa");
-        // return false;
-        // }
-
-        // if (collidesObstacles(celda.getPosition(), tower.getRadius(),
-        // map.getObstacles())) {
-        // return false;
-        // }
-
-        // if (collidesTowers(celda.getPosition(), tower.getRadius(),
-        // towersAlreadyPositioned)) {
-        // return false;
-        // }
-
-        // if (collidesWalkablesNodes(celda.getPosition(),
-        // tower.getRadius() +
-        // Game.getInstance().getParam(Config.Parameter.ENEMY_RADIUS_MAX),
-        // map.getWalkableNodes())) {
-        // return false;
-        // }
-
         return true;
 
     }
@@ -232,24 +208,34 @@ public class TowerPlacer {
         setValuesToNodes(map);
 
         boolean noPositioned = true;
-        ArrayList<MapNode> candidates = getListCandidates(map);
+        // ArrayList<MapNode> candidates = getListCandidates(map);
+        ArrayList<MapNode> candidates = map.getNodesList();
         ArrayList<Tower> solution = new ArrayList<>();
 
-        while (towers.size() != 0 && candidates.size() != 0) {
-            int i = 0;
+        int tamCandidates = candidates.size();
+        int tamTowers = towers.size();
+
+        int i = 0;
+        while (tamTowers > 0 && tamCandidates > 0) {
+
             Tower tower = towers.get(i);
-            towers.remove(i);
-            while (candidates.size() != 0 && noPositioned) {
-                int j = 0;
+            int j = 0;
+
+            while (tamCandidates > 0 && noPositioned) {
+
                 MapNode c = candidates.get(j);
-                candidates.remove(0);
                 if (isFactible(c, tower, map, solution)) {
                     tower.setPosition(c.getPosition());
                     solution.add(tower);
                     noPositioned = false;
                 }
+
+                candidates.remove(j);
+                tamCandidates--;
                 j++;
             }
+            towers.remove(i);
+            tamTowers--;
             i++;
 
         }
