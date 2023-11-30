@@ -38,7 +38,6 @@ public class TowerBuyer {
         float range = tower.getRange();
         float damage = tower.getDamage();
         float cooldown = tower.getCooldown();
-        float dispersion = tower.getDispersion();
         float cost = tower.getCost();
 
         // System.out.println("1. range" + range);
@@ -50,9 +49,9 @@ public class TowerBuyer {
         /*
          * Esta fórmula tiene en cuenta los siguientes aspectos:
          * - Mayor alcance (Range) y daño (Damage) contribuyen positivamente al puntaje.
-         * - Menor tiempo de recarga (Cooldown) y dispersión (Dispersion) contribuyen
-         * positivamente al puntaje.
-         * - El costo (Costo) contribuye negativamente al puntaje, lo divido entre 100
+         * - Menor tiempo de recarga (Cooldown) contribuye
+         * negativamente al puntaje.
+         * - El costo (Costo) contribuye negativamente al puntaje, lo divido entre 1000
          * para no tener scores negativos.
          */
 
