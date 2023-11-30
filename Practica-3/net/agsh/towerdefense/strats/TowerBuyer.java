@@ -14,7 +14,7 @@ public class TowerBuyer {
 
         public Tuple(Tower first, float second) {
             this.first = first;
-            this.second = roundMoney(second);
+            this.second = (int) Math.floor(second);
         }
 
         // Tower
@@ -155,6 +155,7 @@ public class TowerBuyer {
         int roundMoney;
         float decimalPart = money - (int) money;
 
+        // Baiscamente siempre es mejor redondear hacia arriba
         if (decimalPart > 0.01) {
             roundMoney = (int) Math.ceil(money);
         } else {
