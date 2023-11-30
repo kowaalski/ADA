@@ -57,13 +57,14 @@ public class TowerBuyer {
          */
 
         // float score = ((range * damage) / cooldown + dispersion) - cost / 100;
-        float score = ((range * damage) / cooldown);
+        float score = ((range * damage) / cooldown) - cost/100;
 
         return score;
 
     }
 
-    // Asigna a todas las towers un score (peso) y devuelve una lista que contiene
+    // Asigna a todas las towers un score (Valor de lo buena que es) y
+    // devuelve una lista que contiene
     // una tupla <Tower,Score>
     public static ArrayList<Tuple> getAllTowersValues(ArrayList<Tower> towers) {
         ArrayList<Tuple> listTowersScores = new ArrayList<>();
@@ -79,52 +80,52 @@ public class TowerBuyer {
         return listTowersScores;
     }
 
-    /****
-     * BUG SE GASTA MAS DINERO DE EL QUE TENEMOS, ESO ES POR TRUNCAR REVISARLO, PERO
-     * ASI CONSEGUIMOS 90 DE SCORE ****
-     * runcar hacia ARRIBA
-     * /*** ENTRY POINT
-     ***/
+    /**** ENTRY POINT ***/
     public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float money) {
         // System.out.println(towers.toString());
         // Redondea quita la parte decimal
-        System.out.println();
-        System.out.println();
-        System.out.println("-- ORIGINAL TOWER LIST --");
-        for (int i = 0; i < towers.size(); i++) {
-            Tower tower = towers.get(i);
-            System.out.println("Tower ID: " + tower.getId() + ", CostMoney: " + roundMoney(tower.getCost()));
-        }
-        System.out.println();
+        // System.out.println();
+        // System.out.println();
+        // System.out.println("-- ORIGINAL TOWER LIST --");
+        // for (int i = 0; i < towers.size(); i++) {
+        // Tower tower = towers.get(i);
+        // System.out.println("Tower ID: " + tower.getId() + ", CostMoney: " +
+        // roundMoney(tower.getCost()));
+        // }
+        // System.out.println();
 
         int moneyInt = roundMoney(money);
 
         ArrayList<Tuple> listTowers = getAllTowersValues(towers);
         listTowers = mergeSort(listTowers, 0, listTowers.size() - 1);
 
-        System.out.println("// TOWERS SELECTED //");
+        // System.out.println("// TOWERS SELECTED //");
+
         ArrayList<Tower> solution = makeTable(listTowers, moneyInt);
-        int totalMoneySpend = 0;
-        for (int i = 0; i < solution.size(); i++) {
-            Tower tower = solution.get(i);
-            totalMoneySpend = totalMoneySpend + roundMoney(tower.getCost());
-            System.out.println(
-                    (i + 1) + ". Tower ID: " + tower.getId() + ", CostMoney: " + roundMoney(tower.getCost()));
-        }
-        System.err.println("-MONEY AVALIABLE TO SPEND: " + moneyInt);
-        System.out.println("-TOTAL COST MONEY SPEND: " + totalMoneySpend);
+
+        // int totalMoneySpend = 0;
+        // for (int i = 0; i < solution.size(); i++) {
+        // Tower tower = solution.get(i);
+        // totalMoneySpend = totalMoneySpend + roundMoney(tower.getCost());
+        // System.out.println(
+        // (i + 1) + ". Tower ID: " + tower.getId() + ", CostMoney: " +
+        // roundMoney(tower.getCost()));
+        // }
+        // System.err.println("-MONEY AVALIABLE TO SPEND: " + moneyInt);
+        // System.out.println("-TOTAL COST MONEY SPEND: " + totalMoneySpend);
 
         ArrayList<Integer> finalSolution = getIndexFromTower(solution, towers);
 
-        System.out.println("/////// FINAL SOLUTION OF INDEX ");
-        int i = 1;
-        for (int num : finalSolution) {
-            System.out.println(i + ". Tower ID: " + towers.get(num).getId());
-            i++;
-        }
+        // System.out.println("/////// FINAL SOLUTION OF INDEX ");
+        // int i = 1;
+        // for (int num : finalSolution) {
+        // System.out.println(i + ". Tower ID: " + towers.get(num).getId());
+        // i++;
+        // }
 
-        System.out.println(
-                "TAM SOLUTION TOWER: " + solution.size() + ", TAM SOLUTION FINAL INDEX: " + finalSolution.size());
+        // System.out.println(
+        // "TAM SOLUTION TOWER: " + solution.size() + ", TAM SOLUTION FINAL INDEX: " +
+        // finalSolution.size());
         return finalSolution;
     }
 
@@ -180,7 +181,7 @@ public class TowerBuyer {
         /*******************************************/
         // La primera fila se hace sola, ya que no depende de ninguna
         for (int j = 0; j < columns; j++) {
-            int cost = roundMoney(listTowers.get(1).first.getCost());
+            int cost = roundMoney(listTowers.get(1).first.getCost()); // Coste de la torreta (dinero que vale)
             int value = listTowers.get(1).getSecond();
 
             if (j < cost) {
@@ -321,7 +322,7 @@ public class TowerBuyer {
         return finalSolution;
     }
 
-    // Ordeno por coste de la torreta
+    // Ordeno por coste (sería el peso en la mochila) de la torreta
     private static ArrayList<Tuple> mergeSort(ArrayList<Tuple> listTowers, int i, int j) {
         if (i < j) {
             int mid = (i + j) / 2;
