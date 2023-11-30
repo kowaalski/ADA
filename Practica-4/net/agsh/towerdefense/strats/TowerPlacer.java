@@ -42,7 +42,7 @@ public class TowerPlacer {
         boolean isCollide = false;
         try {
 
-            float dist = entity1Position.distance(entity2Position);
+            float dist = entity1Position.distance(entity2Position); // Por si entity2position es null
 
             float totalRadio = entity1Radius + entity2Radius;
 
@@ -66,11 +66,34 @@ public class TowerPlacer {
     public static boolean collidesWalkablesNodes(Point2D position, float radius, ArrayList<MapNode> walkableNodes) {
         for (MapNode nodeW : walkableNodes) {
             if (collide(position, radius, nodeW.getPosition(), 10)) {
+                // System.out.println("Colisiona con nodo caminable");
                 return true;
             }
         }
         return false;
 
+    }
+
+    public static boolean collidesObstacles(Point2D position, float radius, ArrayList<Obstacle> obstacleList) {
+        for (Obstacle obs : obstacleList) {
+            if (collide(position, radius, obs.getPosition(), obs.getRadius())) {
+                // System.out.println("Colisiona con obstaculo");
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    public static boolean collidesTowersAlreadyPositioned(Point2D position, float radius,
+            ArrayList<Tower> towersAlreadyPositioned) {
+        for (Tower tower : towersAlreadyPositioned) {
+            if (collide(position, radius, tower.getPosition(), tower.getRadius())) {
+                // System.out.println("Colisiona con torre ya posicionada");
+                return true;
+            }
+        }
+        return false;
     }
 
     public static ArrayList<MapNode> getOrderNodesPerValue(Map map) {
@@ -82,49 +105,14 @@ public class TowerPlacer {
     public static boolean isFactible(MapNode node, Map map, ArrayList<Tower> listTowers,
             ArrayList<Tower> towersAlreadyPositioned) {
         int index = 0;
-        boolean collideTower = false;
-        boolean collidesObstacles = false;
 
         for (int i = 0; i < listTowers.size(); i++) {
             Tower tower = listTowers.get(i);
-            if (!isInsideMatriz(node.getPosition(), map)) {
-                // System.out.println("No se puede colocar la torre porque se sale del mapa");
-                continue;
-            }
 
-            for (Tower tower2 : towersAlreadyPositioned) {
-                if (collide(node.getPosition(), tower.getRadius(), tower2.getPosition(),
-                        tower2.getRadius())) {
-                    // System.out.println("No se puede colocar la torre porque colisiona con
-                    // otratorre");
-                    collideTower = true;
-                    break;
-                }
-            }
-
-            if (collideTower) {
-                collideTower = false;
-                continue;
-            }
-
-            for (Obstacle obs : map.getObstacles()) {
-                if (collide(node.getPosition(), tower.getRadius(), obs.getPosition(),
-                        obs.getRadius())) {
-                    // System.out.println("No se puede colocar la torre porque colisiona con un
-                    // obstaculo");
-                    collidesObstacles = true;
-                    continue;
-                }
-            }
-            if (collidesObstacles) {
-                collidesObstacles = false;
-                continue;
-            }
-
-            if (collidesWalkablesNodes(node.getPosition(), tower.getRadius(),
-                    map.getWalkableNodes())) {
-                // System.out.println("No se puede colocar la torre porque colisiona con un nodo
-                // transitable");
+            if (!isInsideMatriz(node.getPosition(), map)
+                    || collidesTowersAlreadyPositioned(node.getPosition(), tower.getRadius(), towersAlreadyPositioned)
+                    || collidesObstacles(node.getPosition(), tower.getRadius(), map.getObstacles())
+                    || collidesWalkablesNodes(node.getPosition(), tower.getRadius(), map.getWalkableNodes())) {
                 continue;
             }
 
