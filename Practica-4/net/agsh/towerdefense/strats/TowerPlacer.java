@@ -57,9 +57,9 @@ public class TowerPlacer {
         return isCollide;
     }
 
-    public static boolean isInsideMatriz(Point2D position, Map map) {
-        return !(position.x < 0) && !(position.x > map.getSize().x) && !(position.y < 0)
-                && !(position.y > map.getSize().y);
+    public static boolean isInsideTable(Point2D position, Map map, float radius) {
+        return !(position.x < radius) && !(position.x > map.getSize().x - radius) && !(position.y < radius)
+                && !(position.y > map.getSize().y - radius);
 
     }
 
@@ -109,7 +109,7 @@ public class TowerPlacer {
         for (int i = 0; i < listTowers.size(); i++) {
             Tower tower = listTowers.get(i);
 
-            if (!isInsideMatriz(node.getPosition(), map)
+            if (!isInsideTable(node.getPosition(), map, tower.getRadius())
                     || collidesTowersAlreadyPositioned(node.getPosition(), tower.getRadius(), towersAlreadyPositioned)
                     || collidesObstacles(node.getPosition(), tower.getRadius(), map.getObstacles())
                     || collidesWalkablesNodes(node.getPosition(), tower.getRadius(), map.getWalkableNodes())) {
