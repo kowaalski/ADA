@@ -1,6 +1,16 @@
 /*
-Sustituir este comentario por una explicación de la formula o procedimiento empleado para determinar el valor de una
-celda (MapNode).
+#---------------------------------------------------------------------------------------------------------------------
+#  EXPLICACIÓN: setValuesToNodes(Map map)
+#---------------------------------------------------------------------------------------------------------------------
+    La estrategia seguida ha sido intentar asignar mayor valor a las celdas que 
+    tienen más nodos transitables cercas es decir que tengan más caminos. 
+    
+    Para ello he ido cogiendo nodo por nodo (celda) y comparando con cada nodo transitable
+    si la distancia entre ellos es menor que el rango máximo de la tower con mayor rango, 
+    de esta manera me evito asginar valores altos a celdas que realmente no se van a poder 
+    colocar una tower ya que su rango se mete dentro de una nodo transitable. Si se cumple la condición pues le 
+    sumo 1 al valor de la celda, sino no le sumo nada.
+
 */
 
 package net.agsh.towerdefense.strats;
@@ -9,8 +19,6 @@ import net.agsh.towerdefense.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 public class TowerPlacer {
 
