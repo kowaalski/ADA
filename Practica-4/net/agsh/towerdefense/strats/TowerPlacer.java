@@ -40,13 +40,18 @@ public class TowerPlacer {
             Point2D entity2Position, float entity2Radius) {
 
         boolean isCollide = false;
+        try {
 
-        float dist = entity1Position.distance(entity2Position);
+            float dist = entity1Position.distance(entity2Position);
 
-        float totalRadio = entity1Radius + entity2Radius;
+            float totalRadio = entity1Radius + entity2Radius;
 
-        if (totalRadio > dist) {
-            isCollide = true;
+            if (totalRadio > dist) {
+                isCollide = true;
+            }
+
+        } catch (Exception e) {
+            return false;
         }
 
         return isCollide;
@@ -89,8 +94,14 @@ public class TowerPlacer {
     }
 
     public static boolean collidesWalkablesNodes(Point2D position, float radius, ArrayList<MapNode> walkableNodes) {
+        // for (MapNode nodeW : walkableNodes) {
+        // if (!(position.distance(nodeW.getPosition()) < radius)) {
+        // return true;
+        // }
+        // }
+
         for (MapNode nodeW : walkableNodes) {
-            if (!(position.distance(nodeW.getPosition()) < radius)) {
+            if (collide(position, radius, nodeW.getPosition(), 10)) {
                 return true;
             }
         }
@@ -110,60 +121,106 @@ public class TowerPlacer {
         return candidates;
     }
 
-    public static boolean isFascible(MapNode node, Map map, ArrayList<Tower> listTowers) {
+    public static boolean isFeasible(MapNode node, Map map, ArrayList<Tower> listTowers,
+            ArrayList<Tower> towersAlreadyPositioned) {
         int index = 0;
+        boolean collideTower = false;
+        boolean collidesObstacles = false;
+
         for (int i = 0; i < listTowers.size(); i++) {
             Tower tower = listTowers.get(i);
-            Point2D oldPosition = tower.getPosition();
-            tower.setPosition(node.getPosition().midPoint(oldPosition));
-
-            if (!isInsideTable(tower.getPosition(), tower.getRadius(), map)) {
-                if (oldPosition != null) {
-                    tower.setPosition(oldPosition);
-                } else {
-                    tower.setPosition(new Point2D());
-                }
+            if (!isInsideMatriz(node.getPosition(), map)) {
                 System.out.println("No se puede colocar la torre porque se sale del mapa");
                 continue;
             }
 
-            if (collidesObstacles(tower.getPosition(), tower.getRadius(), map.getObstacles())) {
-                if (oldPosition != null) {
-                    tower.setPosition(oldPosition);
-                } else {
-                    tower.setPosition(new Point2D());
+            for (Tower tower2 : towersAlreadyPositioned) {
+                if (collide(node.getPosition(), tower.getRadius(), tower2.getPosition(),
+                        tower2.getRadius())) {
+                    System.out.println("No se puede colocar la torre porque colisiona con otratorre");
+                    collideTower = true;
+                    break;
                 }
-                System.out.println("No se puede colocar la torre porque colisiona con un obstaculo");
+            }
+
+            if (collideTower) {
+                collideTower = false;
                 continue;
             }
 
-            if (collidesTowers(tower.getPosition(), tower.getRadius(), listTowers)) {
-                if (oldPosition != null) {
-                    tower.setPosition(oldPosition);
-                } else {
-                    tower.setPosition(new Point2D());
+            for (Obstacle obs : map.getObstacles()) {
+                if (collide(node.getPosition(), tower.getRadius(), obs.getPosition(),
+                        obs.getRadius())) {
+                    System.out.println("No se puede colocar la torre porque colisiona con un obstaculo");
+                    collidesObstacles = true;
+                    continue;
                 }
-                System.out.println("No se puede colocar la torre porque colisiona con otra torre");
+            }
+            if (collidesObstacles) {
+                collidesObstacles = false;
                 continue;
             }
 
-            if (collidesWalkablesNodes(tower.getPosition(),
-                    tower.getRadius() + Game.getInstance().getParam(Config.Parameter.ENEMY_RADIUS_MAX),
+            if (collidesWalkablesNodes(node.getPosition(), tower.getRadius(),
                     map.getWalkableNodes())) {
-                if (oldPosition != null) {
-                    tower.setPosition(oldPosition);
-                } else {
-                    tower.setPosition(new Point2D());
-                }
                 System.out.println("No se puede colocar la torre porque colisiona con un nodo transitable");
                 continue;
             }
+            // if (!isInsideTable(tower.getPosition(), tower.getRadius(), map)) {
+            // if (oldPosition != null) {
+            // tower.setPosition(oldPosition);
+            // } else {
+            // tower.setPosition(new Point2D());
+            // }
+            // System.out.println("No se puede colocar la torre porque se sale del mapa");
+            // continue;
+            // }
+
+            // if (collidesObstacles(tower.getPosition(), tower.getRadius(),
+            // map.getObstacles())) {
+            // if (oldPosition != null) {
+            // tower.setPosition(oldPosition);
+            // } else {
+            // tower.setPosition(new Point2D());
+            // }
+            // System.out.println("No se puede colocar la torre porque colisiona con un
+            // obstaculo");
+            // continue;
+            // }
+
+            // if (collidesTowers(tower.getPosition(), tower.getRadius(), listTowers)) {
+            // if (oldPosition != null) {
+            // tower.setPosition(oldPosition);
+            // } else {
+            // tower.setPosition(new Point2D());
+            // }
+            // System.out.println("No se puede colocar la torre porque colisiona con otra
+            // torre");
+            // continue;
+            // }
+
+            // if (collidesWalkablesNodes(tower.getPosition(),
+            // tower.getRadius() +
+            // Game.getInstance().getParam(Config.Parameter.ENEMY_RADIUS_MAX),
+            // map.getWalkableNodes())) {
+            // if (oldPosition != null) {
+            // tower.setPosition(oldPosition);
+            // } else {
+            // tower.setPosition(new Point2D());
+            // }
+            // System.out.println("No se puede colocar la torre porque colisiona con un nodo
+            // transitable");
+            // continue;
+            // }
 
             index = i;
+            tower.setPosition(node.getPosition());
+            // System.out.println("INDEX:" + index);
             Tower solTower = listTowers.get(index);
             Tower initialTower = listTowers.get(0);
             listTowers.set(0, solTower);
             listTowers.set(index, initialTower);
+            System.out.println(solTower.toString());
             return true;
         }
 
@@ -207,47 +264,48 @@ public class TowerPlacer {
         System.out.println("//////////////////////////////");
         setValuesToNodes(map);
 
-        boolean noPositioned = true;
-        // ArrayList<MapNode> candidates = getListCandidates(map);
-        ArrayList<MapNode> candidates = map.getNodesList();
+        // boolean noPositioned = true;
+        ArrayList<MapNode> candidates = getListCandidates(map);
+        // ArrayList<MapNode> candidates = map.getNodesList();
         ArrayList<Tower> solution = new ArrayList<>();
 
-        int tamCandidates = candidates.size();
-        int tamTowers = towers.size();
+        // int tamCandidates = candidates.size();
+        // int tamTowers = towers.size();
 
-        int i = 0;
-        while (tamTowers > 0 && tamCandidates > 0) {
+        // int i = 0;
+        // while (tamTowers > 0 && tamCandidates > 0) {
 
-            Tower tower = towers.get(i);
-            int j = 0;
+        // Tower tower = towers.get(i);
+        // int j = 0;
 
-            while (tamCandidates > 0 && noPositioned) {
+        // while (tamCandidates > 0 && noPositioned) {
 
-                MapNode c = candidates.get(j);
-                if (isFactible(c, tower, map, solution)) {
-                    tower.setPosition(c.getPosition());
-                    solution.add(tower);
-                    noPositioned = false;
-                }
+        // MapNode c = candidates.get(j);
+        // if (isFactible(c, tower, map, solution)) {
+        // tower.setPosition(c.getPosition());
+        // solution.add(tower);
+        // noPositioned = false;
+        // }
 
-                candidates.remove(j);
-                tamCandidates--;
-                j++;
+        // candidates.remove(j);
+        // tamCandidates--;
+        // j++;
+        // }
+        // towers.remove(i);
+        // tamTowers--;
+        // i++;
+
+        // }
+        while (towers.size() != 0 && !candidates.isEmpty()) {
+            MapNode c = candidates.get(0);
+
+            if (isFeasible(c, map, towers, solution)) {
+                solution.add(towers.get(0));
+                towers.remove(0);
             }
-            towers.remove(i);
-            tamTowers--;
-            i++;
 
+            candidates.remove(0);
         }
-        // while (towers.size() != 0 && !candidates.isEmpty()) {
-        // MapNode c = candidates.get(0);
-        // candidates.remove(0);
-
-        // if (isFeasible(c, map, towers)) {
-        // solution.add(towers.get(0));
-        // towers.remove(0);
-        // }
-        // }
 
         return solution;
     }
