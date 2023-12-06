@@ -180,13 +180,12 @@ public class TowerPlacer {
     public static HashMap<Tower, Float> getPowerfulTowers(ArrayList<Tower> listTowers) {
         HashMap<Tower, Float> TowerValue = new HashMap<>();
 
-        // The same formula that we use in the practice 3
+        // The same formula that we use in the practice 3 with some variations
         for (Tower tower : listTowers) {
             float range = tower.getRange();
             float damage = tower.getDamage();
             float cooldown = tower.getCooldown();
             float dispersion = tower.getDispersion();
-            float cost = tower.getCost();
             float score = ((range * damage) / cooldown * dispersion) / 1000;
             // float score = ((range * damage) / cooldown) - cost / 1000;
             TowerValue.put(tower, score);
