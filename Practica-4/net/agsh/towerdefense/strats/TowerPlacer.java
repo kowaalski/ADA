@@ -187,7 +187,8 @@ public class TowerPlacer {
             float cooldown = tower.getCooldown();
             float dispersion = tower.getDispersion();
             float cost = tower.getCost();
-            float score = ((range * damage) / cooldown + dispersion) - cost / 100;
+            float score = ((range * damage) / cooldown * dispersion) / 1000;
+            // float score = ((range * damage) / cooldown) - cost / 1000;
             TowerValue.put(tower, score);
         }
 
