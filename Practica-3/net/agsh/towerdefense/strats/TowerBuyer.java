@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class TowerBuyer {
 
     // Creo la clase tupla, para poder tener un objeto que me asigne una torreta con
-    // su score (sería el peso en la mochila)
+    // su score (sería el valor en la mochila)
     public static class Tuple {
         private final Tower first;
         private final int second;
