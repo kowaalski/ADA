@@ -1,3 +1,19 @@
+/*
+#---------------------------------------------------------------------------------------------------------------------
+#  EXPLICACIÓN FÓRMULA EN getTowerValue(Tower tower)
+#---------------------------------------------------------------------------------------------------------------------
+
+((range * damage) / cooldown) - cost / 1000;
+
+ Esta fórmula tiene en cuenta los siguientes aspectos:
+    - Mayor alcance (Range) y daño (Damage) contribuyen positivamente al puntaje.
+    - Menor tiempo de recarga (Cooldown) contribuye
+    - negativamente al puntaje.
+    - El costo (Costo) contribuye negativamente al puntaje, lo divido entre 1000
+    - para no tener scores negativos.
+
+*/
+
 package net.agsh.towerdefense.strats;
 
 import net.agsh.towerdefense.Tower;
