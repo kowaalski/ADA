@@ -33,9 +33,9 @@ public class TowerBuyer {
          * para no tener scores negativos.
          */
 
-        // float score = ((range * damage) / cooldown + dispersion) - cost / 100;
+        float score = ((range * damage) / cooldown + dispersion) - cost / 100;
         // float score = ((range * damage) / cooldown) - cost / 1000;
-        float score = ((range));
+        // float score = damage;
 
         return score;
 
@@ -54,7 +54,7 @@ public class TowerBuyer {
             }
         }
 
-        System.out.println(bestSol.toString());
+        // System.out.println(bestSol.toString());
 
         return selected;
     }
