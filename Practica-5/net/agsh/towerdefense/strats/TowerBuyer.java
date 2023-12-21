@@ -1,6 +1,26 @@
 /*
-Sustituir este comentario por una explicación de la formula o procedimiento empleado para determinar el valor de una
-torreta.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  He realizado dos implementaciones de backtracking para 
+#  intentar conseguir mejor score:
+#   
+#    1. La primera implementación es la que se encuentra 
+#       comentada en el código, he seguido la Versión 1 de 
+#       las transparencias de clase: poda por capacidad de la mochila(I), en la que he conseguido
+#       un como mínimo un score de 31
+#     
+#    2. La segunda implementación es la que se encuentra sin comentar en el
+#       código, he seguido una mezcla de varias versiones, es con la que he 
+#       conseguido más score, en cambio es más larga debido al metodo getIndexFromTower que uso para rescatar
+#       cada índice de las towers de la solucion, en la que he conseguido un score como mínimo de 22
+#
+#   En las dos implementaciones la fórmula seguida para darle valor a las towers es la misma:
+#   - daño (Damage) contribuyen positivamente al puntaje.
+#   - El costo contribuye negativamente al puntaje
+#   - He metido mas campos en la formula pero no conseguía mejorar el score con la que menos score he sacado ha sido las más simple
+#     
+#     FORMULA -->  damage / cost
+#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 package net.agsh.towerdefense.strats;
@@ -9,153 +29,159 @@ import net.agsh.towerdefense.Tower;
 
 import java.util.ArrayList;
 
+/*************************************************************
+ * 
+ * PRIMERA IMPLEMENTACIÓN
+ * 
+/*************************************************************/
+
+// public class TowerBuyer {
+
+//     public static float getTowerValue(Tower tower) {
+//         float damage = tower.getDamage();
+//         float cost = tower.getCost();
+
+//         /*
+//          * Esta fórmula tiene en cuenta los siguientes aspectos:
+//          * - daño (Damage) contribuyen positivamente al puntaje.
+//          * - El costo contribuye negativamente al puntaje,
+//          * He metido mas campos en la formula pero con la que he consegudio mejor score
+//          * es esta más simple
+//          */
+
+//         float score = damage / cost;
+
+//         return score;
+
+//     }
+
+//     public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float money) {
+
+//         ArrayList<Boolean> actualSol = new ArrayList<>();
+
+//         ArrayList<Boolean> bestSol = mdr(towers, actualSol, money);
+//         ArrayList<Integer> selected = new ArrayList<>();
+
+//         for (int i = 0; i < bestSol.size(); i++) {
+//             if (bestSol.get(i)) {
+//                 selected.add(i);
+//             }
+//         }
+
+//         return selected;
+//     }
+
+//     private static ArrayList<Boolean> mdr(ArrayList<Tower> towers,
+//             ArrayList<Boolean> actualSol, float c) {
+//         for (int i = 0; i < towers.size(); i++) {
+//             actualSol.add(false);
+//         }
+//         ArrayList<Boolean> bestSol = new ArrayList<>(actualSol);
+//         return mdrAux(towers, c, actualSol, 0, bestSol);
+//     }
+
+//     private static ArrayList<Boolean> mdrAux(ArrayList<Tower> towers, float c,
+//             ArrayList<Boolean> actualSol, int k,
+//             ArrayList<Boolean> bestSol) {
+
+//         if (towers.get(k).getCost() + getTotalCost(actualSol, towers) <= c) {
+//             actualSol.set(k, true); // Incluimos el elemento en la solucion
+//             if (k == towers.size() - 1) { // Es hoja, por tanto es una solucion que debemos de comprobar si es mejor o peor que la mejor que ya tenemos
+//                 if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) {
+//                     bestSol = new ArrayList<>(actualSol);
+//                     return bestSol;
+//                 }
+//             } else { // Si no es hoja, seguimos explorando, el siguiente nodo
+//                 return bestSol = mdrAux(towers, c, actualSol, k + 1, bestSol);
+//             }
+//         }
+
+//         // Cuando sale de la recursividad lo pone a false y explora la siguiente rama
+//         // Cuando sale de el if a false, es decir que no cabe el elemento lo que
+//         // haría sería podar poniendo a false
+//         // Sirve para estos dos casos a partir de aqui
+//         actualSol.set(k, false); // Excluimos el elemento de la solucion, para explorar la otra rama si no // hubiesemos metido el elemento
+//         if (k == towers.size() - 1) { // Es hoja, por tanto es una solucion que
+//             if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) { //
+//                 bestSol = new ArrayList<>(actualSol);
+//                 return bestSol;
+//             }
+
+//         } else {
+//             return bestSol = mdrAux(towers, c, actualSol, k + 1, bestSol);
+//         }
+
+//         return bestSol;
+
+//     }
+
+//     // Obtenemos el VALOR de la solucion que nos pasan
+//     public static float getTotalValue(ArrayList<Boolean> actualSol, ArrayList<Tower> towers) {
+//         float totalValue = 0;
+//         int i = 0;
+//         while (i < towers.size()) {
+//             if (actualSol.get(i)) {
+//                 totalValue += getTowerValue(towers.get(i));
+//             }
+//             i++;
+//         }
+
+//         return totalValue;
+//     }
+
+//     // Obtenemos el COSTE de la solucion que nos pasan
+//     public static float getTotalCost(ArrayList<Boolean> actualSol, ArrayList<Tower> towers) {
+//         float totalCost = 0;
+//         int i = 0;
+//         while (i < towers.size()) {
+//             if (actualSol.get(i)) {
+//                 totalCost += towers.get(i).getCost();
+//             }
+//             i++;
+//         }
+
+//         return totalCost;
+//     }
+
+// }
+
+/*************************************************************
+ * 
+ * SEGUNDA IMPLEMENTACIÓN
+ *
+ *************************************************************/
+
 public class TowerBuyer {
-
     public static float getTowerValue(Tower tower) {
-        float range = tower.getRange();
         float damage = tower.getDamage();
-        float cooldown = tower.getCooldown();
         float cost = tower.getCost();
-        float dispersion = tower.getCost();
-
-        // System.out.println("1. range" + range);
-        // System.out.println("2. damage " + damage);
-        // System.out.println("3. cooldown " + cooldown);
-        // System.out.println("4. dispersion " + dispersion);
-        // System.out.println("5. cost " + cost);
 
         /*
          * Esta fórmula tiene en cuenta los siguientes aspectos:
-         * - Mayor alcance (Range) y daño (Damage) contribuyen positivamente al puntaje.
-         * - Menor tiempo de recarga (Cooldown) contribuye
-         * negativamente al puntaje.
-         * - El costo (Costo) contribuye negativamente al puntaje, lo divido entre 1000
-         * para no tener scores negativos.
+         * - daño (Damage) contribuyen positivamente al puntaje.
+         * - El costo contribuye negativamente al puntaje,
+         * He metido mas campos en la formula pero con la que he consegudio mejor score
+         * es esta más simple
          */
-
-        // float score = ((range * damage) / cooldown + dispersion) - cost / 100;
-        // float score = ((range * damage) / cooldown) - cost / 1000;
-        // float score = damage * range;
         float score = damage / cost;
 
         return score;
 
     }
 
-    // public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float
-    // money) {
-
-    // ArrayList<Boolean> actualSol = new ArrayList<>();
-
-    // ArrayList<Boolean> bestSol = mdr(towers, actualSol, money);
-    // ArrayList<Integer> selected = new ArrayList<>();
-
-    // for (int i = 0; i < bestSol.size(); i++) {
-    // if (bestSol.get(i)) {
-    // selected.add(i);
-    // }
-    // }
-
-    // // System.out.println(bestSol.toString());
-
-    // return selected;
-    // }
-
-    // private static ArrayList<Boolean> mdr(ArrayList<Tower> towers,
-    // ArrayList<Boolean> actualSol, float c) {
-    // for (int i = 0; i < towers.size(); i++) {
-    // actualSol.add(false);
-    // }
-    // ArrayList<Boolean> bestSol = new ArrayList<>(actualSol);
-    // return mdrAux(towers, c, actualSol, 0, bestSol);
-    // }
-
-    // private static ArrayList<Boolean> mdrAux(ArrayList<Tower> towers, float c,
-    // ArrayList<Boolean> actualSol, int k,
-    // ArrayList<Boolean> bestSol) {
-
-    // if (towers.get(k).getCost() + getTotalCost(actualSol, towers) <= c) {
-    // actualSol.set(k, true); // Incluimos el elemento en la solucion
-    // if (k == towers.size() - 1) { // Es hoja, por tanto es una solucion que
-    // debemos de comprobar si es mejor o
-    // // peor que la mejor que ya tenemos
-    // if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) {
-    // bestSol = new ArrayList<>(actualSol);
-    // return bestSol;
-    // }
-    // } else { // Si no es hoja, seguimos explorando, el siguiente nodo
-    // return bestSol = mdrAux(towers, c, actualSol, k + 1, bestSol);
-    // }
-    // }
-
-    // // Cuando sale de la recursividad lo pone a false y explora la siguiente rama
-    // // Cuando sale de el if a false, es decir que no cabe el elemento lo que
-    // haría
-    // // sería podar poniendo a false
-    // // Sirve para estos dos casos a partir de aqui
-    // actualSol.set(k, false); // Excluimos el elemento de la solucion, para
-    // explorar la otra rama si no
-    // // hubiesemos
-    // // metido el elemento
-    // if (k == towers.size() - 1) { // Es hoja, por tanto es una solucion que
-    // debemos de comprobar si es mejor o
-    // if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) { //
-    // Lo mismo que en el primer IF
-    // bestSol = new ArrayList<>(actualSol);
-    // return bestSol;
-    // }
-
-    // } else {
-    // return bestSol = mdrAux(towers, c, actualSol, k + 1, bestSol);
-    // }
-
-    // return bestSol;
-
-    // }
-
-    // public static float getTotalValue(ArrayList<Boolean> actualSol,
-    // ArrayList<Tower> towers) {
-    // float totalValue = 0;
-    // int i = 0;
-    // while (i < towers.size()) {
-    // if (actualSol.get(i)) {
-    // totalValue += getTowerValue(towers.get(i));
-    // }
-    // i++;
-    // }
-
-    // return totalValue;
-    // }
-
-    // // coste
-    // public static float getTotalCost(ArrayList<Boolean> actualSol,
-    // ArrayList<Tower> towers) {
-    // float totalCost = 0;
-    // int i = 0;
-    // while (i < towers.size()) {
-    // if (actualSol.get(i)) {
-    // totalCost += towers.get(i).getCost();
-    // }
-    // i++;
-    // }
-
-    // return totalCost;
-    // }
-
-    /********* SEGUNDO ALGORITMO **************/
-
     public static ArrayList<Integer> buyTowers(ArrayList<Tower> towers, float money) {
 
-        ArrayList<Tower> solucionActual = new ArrayList<>();
-        ArrayList<Tower> mejorSolucion = new ArrayList<>();
+        ArrayList<Tower> actualSol = new ArrayList<>();
+        ArrayList<Tower> bestSol = new ArrayList<>();
 
-        explorar(towers, money, 0, solucionActual, mejorSolucion);
+        explorer(towers, money, 0, actualSol, bestSol);
 
-        ArrayList<Integer> finalSolution = getIndexFromTower(mejorSolucion, towers);
+        ArrayList<Integer> finalSolution = getIndexFromTower(bestSol, towers);
         return finalSolution;
 
     }
 
+    // Para obtener los indices de las torres que hemos seleccionado
     public static ArrayList<Integer> getIndexFromTower(ArrayList<Tower> solutionTower,
             ArrayList<Tower> listOriginalTowers) {
 
@@ -182,58 +208,42 @@ public class TowerBuyer {
         return finalSolution;
     }
 
-    public static void explorar(ArrayList<Tower> towers, float capacidad, int indice,
-            ArrayList<Tower> solucionActual,
-            ArrayList<Tower> mejorSolucion) {
-        if (indice == towers.size()) {
-            // Hemos llegado al final de la lista de elementos, es decir llegamos a una
-            // hoja
-            float valorActual = calcularValor(solucionActual);
-            float pesoActual = calcularPeso(solucionActual);
+    public static void explorer(ArrayList<Tower> towers, float c, int k, ArrayList<Tower> actualSol, ArrayList<Tower> bestSol) {
+        if (k == towers.size()) {
+            // Hemos llegado al final de la lista de elementos, es decir llegamos a una hoja
+            float actualValue = getTotalValue(actualSol);
+            float actualWeight = getTotalWeight(actualSol);
 
-            if (valorActual > calcularValor(mejorSolucion) && pesoActual <= capacidad) {
+            if (actualValue > getTotalValue(bestSol) && actualWeight <= c) {
                 // Esta solución es mejor que la mejor conocida hasta ahora
-                mejorSolucion.clear();
-                mejorSolucion.addAll(solucionActual);
+                bestSol.clear();
+                bestSol.addAll(actualSol);
             }
-            return; // Si devuelve el return entonces se mete y borra el elemento de la
-            // solucion y
-            // busca por la rama siguiente si no metiera ese elemento
+            return; 
         }
 
         // Incluir el elemento actual en la solución
-        solucionActual.add(towers.get(indice));
-        explorar(towers, capacidad, indice + 1, solucionActual, mejorSolucion);
+        actualSol.add(towers.get(k));
+        explorer(towers, c, k + 1, actualSol, bestSol);
 
         // Excluir el elemento actual de la solución
-        solucionActual.remove(solucionActual.size() - 1);
-        explorar(towers, capacidad, indice + 1, solucionActual, mejorSolucion);
+        actualSol.remove(actualSol.size() - 1);
+        explorer(towers, c, k + 1, actualSol, bestSol);
     }
 
-    public static float calcularValor(ArrayList<Tower> items) {
-        float valor = 0;
+    public static float getTotalValue(ArrayList<Tower> items) {
+        float value = 0;
         for (Tower tower : items) {
-            valor += getTowerValue(tower);
+            value += getTowerValue(tower);
         }
-        return valor;
+        return value;
     }
 
-    public static float calcularPeso(ArrayList<Tower> items) { // cambiar por float
-        float peso = 0;
+    public static float getTotalWeight(ArrayList<Tower> items) {
+        float weight = 0;
         for (Tower tower : items) {
-            peso += tower.getCost();
+            weight += tower.getCost();
         }
-        return peso;
+        return weight;
     }
-
-    public static void imprimirSolucion(ArrayList<Tower> solucion) {
-        System.out.println("Mejor Solución:");
-        for (Tower tower : solucion) {
-            System.out.println("Peso: " + tower.getCost() + ", Valor: " +
-                    getTowerValue(tower));
-        }
-        System.out.println("Valor total: " + calcularValor(solucion));
-        System.out.println("Peso total: " + calcularPeso(solucion));
-    }
-
 }
