@@ -22,23 +22,35 @@ public class EnemyPathFinder {
         return 0.5f * distanceFactor + 0.5f * inRangeTowers;
     }
 
+    public static float distanceToNearestTower(Point2D point) {
+            List<Tower> towers = Game.getInstance().getMap().getTowers();
+            float minDistance = Float.MAX_VALUE;
+            for (Tower tower : towers) {
+                float distance = point.distance(tower.getPosition());
+                if (distance < 10) {
+                    minDistance = distance;
+                }
+            }
+            return minDistance;
+        }
+
 
 
         public static ArrayList<MapNode> findBestPath(MapNode start, ArrayList<MapNode> walkableNodes, ArrayList<MapNode> endingPoints) {
             // Cola de prioridad que ordena segund sus valores de f de menor a mayor
-            Map<MapNode, Integer> fScore = new HashMap<>(); //  Almacena los valores f (g + h) de los nodos.
-            Map<MapNode, Integer> gScore = new HashMap<>(); // Almacena los valores g (costo real desde el nodo de inicio a un nodo) de los nodos.
-            PriorityQueue<MapNode> openSet = new PriorityQueue<>(Comparator.comparingInt(fScore::get));  // Una cola de prioridad que ordena los nodos según sus valores f, conjuntos de nodos que tenemos para expandir.
+            Map<MapNode, Float> fScore = new HashMap<>(); //  Almacena los valores f (g + h) de los nodos.
+            Map<MapNode, Float> gScore = new HashMap<>(); // Almacena los valores g (costo real desde el nodo de inicio a un nodo) de los nodos.
+            PriorityQueue<MapNode> openSet = new PriorityQueue<>(Comparator.comparing(fScore::get));  // Una cola de prioridad que ordena los nodos según sus valores f, conjuntos de nodos que tenemos para expandir.
             Map<MapNode, MapNode> cameFrom = new HashMap<>(); //  Almacena el nodo anterior de cada nodo en el camino más corto, es donde iremos guardando el camino solucion
             // h --> distancia estimada desde el nodo hasta el nodo objetivo
 
             for (MapNode node : walkableNodes) { // Inicializa los valores de g y f de todos los nodos a infinito.
-                gScore.put(node, Integer.MAX_VALUE);
-                fScore.put(node, Integer.MAX_VALUE);
+                gScore.put(node, Float.MAX_VALUE);
+                fScore.put(node, Float.MAX_VALUE);
             }
 
             //**** EMPIEZA EL ALGORITMO ****//
-            gScore.put(start, 0);
+            gScore.put(start, 0.0f);
             fScore.put(start, heuristicCostEstimate(start, endingPoints.get(0)));
             openSet.add(start);
 
@@ -53,7 +65,7 @@ public class EnemyPathFinder {
                 for (MapNode neighbor : current.getNeighbors()) {
                     if (!walkableNodes.contains(neighbor)) continue; // Si el vecino no es transitable, lo ignoramos y pasamos a la siguiente iteracion
 
-                    int tentativeGScore = gScore.get(current) + distBetween(current, neighbor); // Calcula el valor g del vecino pasando por el nodo actual(current)
+                    float tentativeGScore = gScore.get(current) + distBetween(current, neighbor); // Calcula el valor g del vecino pasando por el nodo actual(current)
 
                     if (tentativeGScore < gScore.get(neighbor)) { // Si el valor g del vecino es menor que el que tenia antes, actualizamos los valores de g y f del vecino, es decir hemos encontrado otro camino al vecino el cual es mejor por tanto nos quedamos con el nuevo, por lo que debemos actualizar las estructuras de datos
                         cameFrom.put(neighbor, current);
@@ -74,24 +86,16 @@ public class EnemyPathFinder {
             return (int) a.getPosition().distance(b.getPosition());
         }
 
-        private static int heuristicCostEstimate(MapNode a, MapNode b) {
+        private static float heuristicCostEstimate(MapNode a, MapNode b) {
             // Use the distance method from your Point2D class
             // return (int) a.getPosition().distance(b.getPosition());
-            return (int) distanceToNearestTower(b.getPosition());
+            return  distanceToNearestTower(b.getPosition()); // score 31
+            // return (int) getWalkableNodeValue(b,a); // score 25
+
 
         }
 
-        public static float distanceToNearestTower(Point2D point) {
-            List<Tower> towers = Game.getInstance().getMap().getTowers();
-            float minDistance = Float.MAX_VALUE;
-            for (Tower tower : towers) {
-                float distance = point.distance(tower.getPosition());
-                if (distance < minDistance) {
-                    minDistance = distance;
-                }
-            }
-            return minDistance;
-        }
+        
 
         private static ArrayList<MapNode> reconstructPath(Map<MapNode, MapNode> cameFrom, MapNode current) {
             ArrayList<MapNode> totalPath = new ArrayList<>();
