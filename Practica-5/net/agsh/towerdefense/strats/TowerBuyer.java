@@ -3,15 +3,14 @@
 #  He realizado dos implementaciones de backtracking para 
 #  intentar conseguir mejor score:
 #   
-#    1. La primera implementación es la que se encuentra 
-#       comentada en el código. He seguido la Versión 1 de 
+#    1. La primera implementación es la que se encuntra sin comentar. He seguido la Versión 1 de 
 #       las transparencias de clase: poda por capacidad de la mochila(I), en la que he conseguido
 #       un score mínimo de 22
 #     
 #    2. La segunda implementación es la que se encuentra comentada en el
-#       código, he seguido una mezcla de varias versiones, es con la que he 
-#       conseguido el mismo score, en cambio es más larga debido al metodo getIndexFromTower que uso para rescatar
-#       cada índice de las towers de la solucion, en la que he conseguido un score como mínimo de 22
+#       código, y la he hecho para ver si podía mejorar el score. He seguido una mezcla de varias versiones,
+#       es más larga debido al metodo getIndexFromTower que uso para rescatar
+#       cada índice de las towers de la solucion, en la que he conseguido el mismo score mínimo de 22
 #
 #   En las dos implementaciones la fórmula seguida para darle valor a las towers es la misma:
 #   - daño (Damage) contribuyen positivamente al puntaje.
