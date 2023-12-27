@@ -40,8 +40,6 @@ public class TowerBuyer {
     public static float getTowerValue(Tower tower) {
         float damage = tower.getDamage();
         float cost = tower.getCost();
-        float range = tower.getRange();
-        float cooldown = tower.getCooldown();
 
         /*
          * Esta fórmula tiene en cuenta los siguientes aspectos:
@@ -51,8 +49,7 @@ public class TowerBuyer {
          * es esta más simple
          */
 
-        float score = damage / cost;
-        // float score = (cost + damage) / (range + cooldown);
+        float score = damage/cost;
 
         return score;
 
@@ -79,40 +76,37 @@ public class TowerBuyer {
             actualSol.add(false);
         }
         ArrayList<Boolean> bestSol = new ArrayList<>(actualSol);
-        return mdrAux(towers, c, actualSol, 0, bestSol);
-    }
-
-    private static ArrayList<Boolean> mdrAux(ArrayList<Tower> towers, float c, ArrayList<Boolean> actualSol, int k, ArrayList<Boolean> bestSol) {
-        if (towers.get(k).getCost() + getTotalCost(actualSol, towers) <= c) {
-            actualSol.set(k, true); // Incluimos el elemento en la solucion
-            if (k == towers.size() - 1) { // Es hoja, por tanto es una solucion que debemos de comprobar si es mejor o peor que la mejor que ya tenemos
-                if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) {
-                    bestSol = new ArrayList<>(actualSol);
-                    // return bestSol;
-                }
-            } else { // Si no es hoja, seguimos explorando, el siguiente nodo
-                bestSol = mdrAux(towers, c, actualSol, k + 1, bestSol);
-            }
-        }
-
-        // Cuando sale de la recursividad lo pone a false y explora la siguiente rama
-        // Cuando sale de el if a false, es decir que no cabe el elemento lo que
-        // haría sería podar poniendo a false
-        // Sirve para estos dos casos
-        actualSol.set(k, false); // Excluimos el elemento de la solucion, para explorar la otra rama si no hubiesemos metido el elemento
-        if (k == towers.size() - 1) { // Es hoja, por tanto es una solucion que
-            if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) { //
-                bestSol = new ArrayList<>(actualSol);
-                // return bestSol;
-            }
-
-        } else {
-               bestSol = mdrAux(towers, c, actualSol, k + 1, bestSol);
-        }
-
+        mdrAux(towers, c, actualSol, 0, bestSol);
         return bestSol;
-
     }
+
+    private static void mdrAux(ArrayList<Tower> towers, float c, ArrayList<Boolean> actualSol, int k, ArrayList<Boolean> bestSol) {
+        if (towers.get(k).getCost() + getTotalCost(actualSol, towers) <= c) {
+            actualSol.set(k, true); // Incluimos el elemento en la solución
+    
+            if (k == towers.size() - 1) { // Es hoja, por tanto hemos llegado a una solución,comprobamos si es mejor que la mejor sol que ya tenemos
+                if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) {
+                    bestSol.clear();
+                    bestSol.addAll(actualSol);
+                }
+            } else { // Si no es hoja, seguimos explorando el siguiente nodo
+                mdrAux(towers, c, actualSol, k + 1, bestSol);
+            }
+        }
+    
+        // Excluimos el elemento de la solución para explorar la otra rama
+        actualSol.set(k, false);
+    
+        if (k == towers.size() - 1) { // Es hoja, comprobamos si es mejor que la mejor que ya tenemos
+            if (getTotalValue(actualSol, towers) > getTotalValue(bestSol, towers)) {
+                bestSol.clear();
+                bestSol.addAll(actualSol);
+            }
+        } else {
+            mdrAux(towers, c, actualSol, k + 1, bestSol);
+        }
+    }
+    
 
     // Obtenemos el VALOR de la solucion que nos pasan
     public static float getTotalValue(ArrayList<Boolean> actualSol, ArrayList<Tower> towers) {
