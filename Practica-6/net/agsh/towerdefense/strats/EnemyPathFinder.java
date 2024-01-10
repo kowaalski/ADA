@@ -40,6 +40,46 @@ public class EnemyPathFinder {
             }
         }
         return minDistance;
+
+
+        // List<Tower> towers = Game.getInstance().getMap().getTowers();
+        // float minDistanceDamage = Float.MAX_VALUE;
+        // for (Tower tower : towers) {
+        //     float distance = point.distance(tower.getPosition());
+        //     if (distance < 10) {
+        //         float distanceDamage = distance * tower.getDamage();
+        //         if (distanceDamage < minDistanceDamage) {
+        //             minDistanceDamage = distanceDamage;
+        //         }
+        //     }
+        // }
+        // return minDistanceDamage;
+
+        // List<Tower> towers = Game.getInstance().getMap().getTowers();
+        // float minDistanceCooldown = Float.MAX_VALUE;
+        // for (Tower tower : towers) {
+        //     float distance = point.distance(tower.getPosition());
+        //     if (distance < 10) {
+        //         float distanceCooldown = distance * tower.getCooldownLeft();
+        //         if (distanceCooldown < minDistanceCooldown) {
+        //             minDistanceCooldown = distanceCooldown;
+        //         }
+        //     }
+        // }
+        // return minDistanceCooldown;
+
+        // List<Tower> towers = Game.getInstance().getMap().getTowers();
+        // float minDistanceDamageCooldown = Float.MAX_VALUE;
+        // for (Tower tower : towers) {
+        //     float distance = point.distance(tower.getPosition());
+        //     if (distance < 10) {
+        //         float distanceDamageCooldown = distance * tower.getDamage() * tower.getCooldownLeft();
+        //         if (distanceDamageCooldown < minDistanceDamageCooldown) {
+        //             minDistanceDamageCooldown = distanceDamageCooldown;
+        //         }
+        //     }
+        // }
+        // return minDistanceDamageCooldown;
     }
 
     // **** Heuristica 1 - v2
@@ -144,6 +184,7 @@ public class EnemyPathFinder {
     public static ArrayList<MapNode> findBestPath(MapNode start, ArrayList<MapNode> walkableNodes,
             ArrayList<MapNode> endingPoints) {
         // Cola de prioridad que ordena segund sus valores de f de menor a mayor
+        
         Map<MapNode, Float> fScore = new HashMap<>(); // Almacena los valores f (g + h) de los nodos.
         Map<MapNode, Float> gScore = new HashMap<>(); // Almacena los valores g (costo real desde el nodo de inicio a un
                                                       // nodo) de los nodos.
@@ -162,10 +203,12 @@ public class EnemyPathFinder {
         }
 
         //# **********************************/
-        //# **** EMPIEZA EL ALGORITMO A* ****/
+        //# **** EMPIEZA EL ALGORITMO A*****/
         //# ********************************/
+
+        MapNode bestEndPoint = bestEndPoint(endingPoints); // Calcula el mejor nodo final
         gScore.put(start, 0.0f);
-        fScore.put(start, heuristicCostEstimate(start, endingPoints.get(0)));
+        fScore.put(start, heuristicCostEstimate(start,bestEndPoint) );
         openSet.add(start);
 
         while (!openSet.isEmpty()) {
@@ -203,8 +246,21 @@ public class EnemyPathFinder {
         return new ArrayList<>(); // Si no se encuentra un camino, devolvemos una lista vacia
     }
 
-    private static int distBetween(MapNode a, MapNode b) {
-        return (int) a.getPosition().distance(b.getPosition());
+    private static MapNode bestEndPoint(ArrayList<MapNode> endingPoints) {
+        double minCost = Double.MAX_VALUE;
+        MapNode bestEndPoint = null;
+        for (MapNode endPoint : endingPoints) {
+            double cost = heuristicCostEstimate(null, endPoint);
+            if (cost < minCost) {
+                minCost = cost;
+                bestEndPoint = endPoint;
+            }
+        }
+        return bestEndPoint;
+    }
+
+    private static float distBetween(MapNode a, MapNode b) {
+        return a.getPosition().distance(b.getPosition());
     }
 
     private static float heuristicCostEstimate(MapNode a, MapNode b) {
