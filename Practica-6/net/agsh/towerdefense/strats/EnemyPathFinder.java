@@ -1,3 +1,25 @@
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  He probado con muchísimas heurísticas y combinaciones de ellas, pero no he 
+#  conseguido mejorar el score, la heurística que mejor score me ha dado ha sido la 1
+#  getWalkableNodeValue(MapNode n)
+#  
+#    1. Obtiene una lista de todas las torres en el juego.
+#
+#    2. Inicializa minDistance con un valor muy alto (Float.MAX_VALUE). 
+#       Este valor se utilizará para almacenar la distancia más corta encontrada hasta ahora.
+#
+#    3. Recorre todas las torres en la lista. Para cada torre, calcula la distancia desde el punto 
+#       dado hasta la posición de la torre.
+#
+#    4. Si la distancia calculada es menor que 10 y menor que la minDistance actual, entonces actualiza
+#       minDistance con esta nueva distancia.
+#
+#    En términos de heurística para el algoritmo de búsqueda A*, este método favorece los nodos que están 
+#    más lejos de las torres.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
 package net.agsh.towerdefense.strats;
 
 import net.agsh.towerdefense.*;
@@ -6,31 +28,12 @@ import java.util.*;
 
 public class EnemyPathFinder {
 
-    //// Del profesor
-    // private static float getWalkableNodeValue(MapNode n, MapNode destination) {
-    // ArrayList<Tower> towers = Game.getInstance().getMap().getTowers();
-    // int inRangeTowers = 0;
-    // for (Tower t : towers) {
-    // if (t.getPosition().distance(n.getPosition()) < 10) {
-    // inRangeTowers++;
-    // }
-    // }
-
-    // float distanceFactor = n.getPosition().distance(destination.getPosition());
-    // float damageFactor = inRangeTowers;
-
-    // return 0.5f * distanceFactor + 0.5f * inRangeTowers;
-    // }
-
-
-    
-
     //# **********************************/
     //# **** Heurísticas probadas *******/
     //# ********************************/
     
     // **** Heuristica 1
-    public static float distanceToNearestTower(Point2D point) {
+    public static float getWalkableNodeValue(Point2D point) {
         List<Tower> towers = Game.getInstance().getMap().getTowers();
         float minDistance = Float.MAX_VALUE;
         for (Tower tower : towers) {
@@ -40,46 +43,6 @@ public class EnemyPathFinder {
             }
         }
         return minDistance;
-
-
-        // List<Tower> towers = Game.getInstance().getMap().getTowers();
-        // float minDistanceDamage = Float.MAX_VALUE;
-        // for (Tower tower : towers) {
-        //     float distance = point.distance(tower.getPosition());
-        //     if (distance < 10) {
-        //         float distanceDamage = distance * tower.getDamage();
-        //         if (distanceDamage < minDistanceDamage) {
-        //             minDistanceDamage = distanceDamage;
-        //         }
-        //     }
-        // }
-        // return minDistanceDamage;
-
-        // List<Tower> towers = Game.getInstance().getMap().getTowers();
-        // float minDistanceCooldown = Float.MAX_VALUE;
-        // for (Tower tower : towers) {
-        //     float distance = point.distance(tower.getPosition());
-        //     if (distance < 10) {
-        //         float distanceCooldown = distance * tower.getCooldownLeft();
-        //         if (distanceCooldown < minDistanceCooldown) {
-        //             minDistanceCooldown = distanceCooldown;
-        //         }
-        //     }
-        // }
-        // return minDistanceCooldown;
-
-        // List<Tower> towers = Game.getInstance().getMap().getTowers();
-        // float minDistanceDamageCooldown = Float.MAX_VALUE;
-        // for (Tower tower : towers) {
-        //     float distance = point.distance(tower.getPosition());
-        //     if (distance < 10) {
-        //         float distanceDamageCooldown = distance * tower.getDamage() * tower.getCooldownLeft();
-        //         if (distanceDamageCooldown < minDistanceDamageCooldown) {
-        //             minDistanceDamageCooldown = distanceDamageCooldown;
-        //         }
-        //     }
-        // }
-        // return minDistanceDamageCooldown;
     }
 
     // **** Heuristica 1 - v2
@@ -203,10 +166,10 @@ public class EnemyPathFinder {
         }
 
         //# **********************************/
-        //# **** EMPIEZA EL ALGORITMO A*****/
+        //# **** EMPIEZA EL ALGORITMO A *****/
         //# ********************************/
 
-        MapNode bestEndPoint = bestEndPoint(endingPoints); // Calcula el mejor nodo final
+        MapNode bestEndPoint = bestEndPoint(start,endingPoints); // Calcula el mejor nodo final
         gScore.put(start, 0.0f);
         fScore.put(start, heuristicCostEstimate(start,bestEndPoint) );
         openSet.add(start);
@@ -246,11 +209,11 @@ public class EnemyPathFinder {
         return new ArrayList<>(); // Si no se encuentra un camino, devolvemos una lista vacia
     }
 
-    private static MapNode bestEndPoint(ArrayList<MapNode> endingPoints) {
+    private static MapNode bestEndPoint(MapNode a, ArrayList<MapNode> endingPoints) {
         double minCost = Double.MAX_VALUE;
         MapNode bestEndPoint = null;
         for (MapNode endPoint : endingPoints) {
-            double cost = heuristicCostEstimate(null, endPoint);
+            double cost = heuristicCostEstimate(a, endPoint);
             if (cost < minCost) {
                 minCost = cost;
                 bestEndPoint = endPoint;
@@ -273,7 +236,7 @@ public class EnemyPathFinder {
         // return nearestTowerCooldown(b.getPosition()); // score 31
         // return countTowersCanShoot(b.getPosition()); // score 31
         // return distanceAndDamageFromNearestTower(b.getPosition()); // score 37
-        return distanceToNearestTower(b.getPosition()); // score 37
+        return getWalkableNodeValue(b.getPosition()); // score 37
     }
 
     // Reconstruye el camino desde el nodo final al nodo inicial
